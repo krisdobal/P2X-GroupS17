@@ -105,7 +105,7 @@ if __name__ == '__main__':
     col = 3
     rows = 2
 
-    fig = plt.figure(1,dpi=100)
+    fig = plt.figure(1, dpi=100)
 
 
     # 1. Voltage vs current
