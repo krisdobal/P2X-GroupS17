@@ -35,14 +35,22 @@ def hydrogen_production(ele_capacity=12, eff_variation=False):
             else:
                 h2_production += p_after_converter*1000/4.33 * 0.089/1000
     else:
-        pass## here we should add the code that makes a varying efficiency
+        h2_production =0
+        for p in wt_power:
+            p_after_converter = 0.96 * p
+            if p_after_converter>=ele_capacity:
+                h2_production += ele_capacity*1000/4.33 * 0.089/1000 # ton
+            else:
+                conv_ratio = p_after_converter/ele_capacity*(4.33-3.84)+3.84 # assuming linear relation between 25% and 100 %
+                h2_of_hour = p_after_converter * 1000/conv_ratio * 0.089/1000
+                h2_production += h2_of_hour
     return h2_production
 
 # 1. Calculate the yearly hydrogen production.
 print(hydrogen_production(ele_capacity= 12))
 
 # 2. Recalculate the hydrogen production using an electrolyser model with varing efficiency.
-#print(hydrogen_production(ele_capacity=12,eff_variation = True))
+print(hydrogen_production(ele_capacity=12, eff_variation = True))
 
 # 3. Change the capacity of the electrolyser and compare the hydrogen production.
 output = []
