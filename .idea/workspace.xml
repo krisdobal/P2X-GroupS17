@@ -4,9 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b3802336-751c-4676-849c-40dd8baa468e" name="Changes" comment="KP preclass solution to exe1 &#10;Basically only need to work on the efficiency variation">
+    <list default="true" id="b3802336-751c-4676-849c-40dd8baa468e" name="Changes" comment="Somewhat final results of L3 exercises">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Exercises/Exe_L3_1.py" beforeDir="false" afterPath="$PROJECT_DIR$/Exercises/Exe_L3_1.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Exercises/Exe_L3_2.py" beforeDir="false" afterPath="$PROJECT_DIR$/Exercises/Exe_L3_2.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -161,7 +160,14 @@
       <option name="project" value="LOCAL" />
       <updated>1654546527039</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Somewhat final results of L3 exercises">
+      <created>1654604288167</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1654604288167</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -193,6 +199,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="KP solution to Exercise 1" />
     <MESSAGE value="KP preclass solution to exe1 &#10;Basically only need to work on the efficiency variation" />
-    <option name="LAST_COMMIT_MESSAGE" value="KP preclass solution to exe1 &#10;Basically only need to work on the efficiency variation" />
+    <MESSAGE value="Somewhat final results of L3 exercises" />
+    <option name="LAST_COMMIT_MESSAGE" value="Somewhat final results of L3 exercises" />
   </component>
 </project>
