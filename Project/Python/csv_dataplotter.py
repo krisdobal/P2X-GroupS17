@@ -30,7 +30,7 @@ class Dataset:
         return sum(power)/(self.nominal_power*self.HOURSINYEAR)
     
     
-class 
+class test:
     def H_driven(self):
         pass
     
