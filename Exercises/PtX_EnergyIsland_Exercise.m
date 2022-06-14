@@ -159,3 +159,30 @@ k=k+1;
 end
 
 %%%%% ADD YOUR CODE HERE - YOU DONT NEED TO TOUCH THE PREVIOUS CODE %%%%%
+surf(Li,Pi,Capex_tot_on)
+hold on
+surf(Li,Pi,Capex_tot_off)
+title('Effect of disatnce and capacity on the investment cost', 'Interpreter','latex');
+xlabel('Length $[km]$', 'Interpreter','latex');
+ylabel('Capacity $[GW]$', 'Interpreter','latex');
+zlabel('Cost [M€]');
+hold off
+
+figure()
+plot(Li,pp(4,:)/100)
+title('Pressure drop in a pipeline in case of 4 GW electrolyser', 'Interpreter','latex');
+xlabel('Length $[km]$', 'Interpreter','latex');
+ylabel('Pressure $[bar]$', 'Interpreter','latex');
+
+figure()
+k = 9
+Capex_on = [0, Capex_HVDC(4,k), Capex_elect(4,k), compres_inv_on(4,k)]; %total invenstemnt cost for the transport to shore in the case of onshosre electrolyser
+Capex_off = [Capex_pipe(4,k), 0, Capex_elect(4,k), compres_inv(4,k)];  %no desalination is considered to simplify the exercise
+
+X = categorical({'Onshore' 'Offshore'});
+X = reordercats(X,{'Onshore' 'Offshore'});
+%X = ['Onshore' 'Offshore'];
+
+bar(X, [Capex_on; Capex_off],.5 ,'stacked') %produces a vertical stacked bar chart.
+legend('Pipeline','HVDC transmission', 'Electrolyser', 'Compressor')
+title('4 GW electrolyser, 290 km cost partition', 'Interpreter','latex');
