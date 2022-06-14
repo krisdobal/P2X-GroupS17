@@ -28,6 +28,14 @@ class Dataset:
     
     def getPowerFactor(self):
         return sum(power)/(self.nominal_power*self.HOURSINYEAR)
+    
+    
+class 
+    def H_driven(self):
+        pass
+    
+    def E_driven(self):
+        pass
  
 if __name__ == "__main__":
     nominal_power = 630
