@@ -48,6 +48,8 @@ class ElecHydro:
         self.P_elec = P_elec
         self.P_hub = P_hub
         self.dt = 1
+        
+        
     def H_driven(self,timeInterval): 
         # dt is [hours]
         # P_elec is [MW]
@@ -69,9 +71,71 @@ class ElecHydro:
                 self.E_ptx_E_dt.append(0)
         return self.E_ptx_E_dt
 
+
+    def hydrogen_production(self, E_ptx, eff_variation=False):
+        # ele_capacity is E_ptx_x_dt
+        
+        
+        h2_production = []
+        
+        for i in E_ptx:
+            ele_capacity=i/self.P_elec
+            
+            if not eff_variation:
+                #p_after_converter = 0.96 * p
+                    
+            #    if p_after_converter>=ele_capacity:
+                h2_production.append(ele_capacity*1000/4.33 * 0.089/1000) # ton
+                #else:
+                    #h2_production += p_after_converter*1000/4.33 * 0.089/1000
+                        
+            else:            
+                h2_production = 0
+                # [MW].
+                #p_after_converter = 0.96 * p;
+                #if p_after_converter >= ele_capacity:
+                p_input = i/self.P_elec;
+                #else:
+                #    p_input = p_after_converter;
+                
+                if p_input > 0.468 and p_input <= 1:
+                    # [Nm^3/h]
+                    y1 = 1385.68;
+                    y2 = 2771.36;
+                    
+                    x1 = 0.468;
+                    x2 = 1;
+                elif p_input > 0.222 and p_input <= 0.468:
+                    # [Nm^3/h]
+                    y1 = 692.84;
+                    y2 = 1385.68;
+                    
+                    # [MW]
+                    x1 = 0.222;
+                    x2 = 0.468;
+                else: 
+                    x1 = 0;
+                    x2 = 0.222;
+                    y1 = 0;
+                    y2 = 692.84;
+                    
+                # Slope.    
+                a = (y2 - y1) / (x2 - x1)
+                b = (-a*x2) + y2
+                
+                # H2 production rate as a function of power [Nm^3/h].
+                f = (a * p_input) + b    
+                
+                # H2 production [ton]
+                h2_production.append((f*self.P_elec) * 0.089/1000)
+                    
+        return h2_production
+
 #########################################
 #########################################
 #########################################
+
+
 
 
  
@@ -83,13 +147,13 @@ if __name__ == "__main__":
     plt.show()
     
     
-    test_ElecHydro = ElecHydro(E_loss= 0, P_elec = 200, P_hub = power)
-    time_interval = 200
+    test_ElecHydro = ElecHydro(E_loss= 0, P_elec = 250, P_hub = power)
+    time_interval = 10
     B_H = [None]*time_interval
     H_driven_dataset = test_ElecHydro.H_driven(time_interval)
     E_driven_dataset = test_ElecHydro.E_driven(time_interval)
-    print(H_driven_dataset)
-    print(E_driven_dataset)
+    #print(H_driven_dataset)
+    #print(E_driven_dataset)
     
     for i in range(time_interval):
         if (H_driven_dataset[i] > E_driven_dataset[i]):
@@ -102,7 +166,9 @@ if __name__ == "__main__":
             #print("Equally profitable")
             B_H[i]=-1
             
-            
+    print(test_ElecHydro.hydrogen_production(E_driven_dataset))
+    
+    
     plt.step(range(time_interval),B_H)
     plt.show()
     cp=getData.getPowerFactor()
