@@ -58,8 +58,11 @@ class Dataset:
         self.column_name = column_name  
         
         self.df = pd.read_csv(self.filename)
-        column_data = self.df[self.column_name]
+        column_data = (self.df[self.column_name])
         
+        #print(type(column_data[0]))
+        #if(type(column_data[0]) == 'numpy.float64'):
+        #    print("sses")
         return column_data
     
     
@@ -67,20 +70,19 @@ class Dataset:
         priceArea_data=self.loadDataset(self.dataset_demand_name,"PriceArea")
         TotalLoad_data=self.loadDataset(self.dataset_demand_name,"TotalLoad")
         
+        TotalLoad_data_DK2 = []
         for i,area in enumerate(priceArea_data):
-            if(area == "DK1"):
-                del priceArea_data[i]
-                del TotalLoad_data[i]
+            if(area == "DK2"):
+                TotalLoad_data_DK2.append(TotalLoad_data[i])
                 
-        return TotalLoad_data
+        return TotalLoad_data_DK2
                 
         
     def scalePowerAndDemand(self, demandList, powerList):
         maxValue_demand = max(demandList)
-        maxValue_power = max(powerList)
-        
-        demandList_scaled = np.divide(demandList,maxValue_demand)
-        powerList_scaled = np.divide(powerList,maxValue_power)
+
+        demandList_scaled = np.divide(demandList,maxValue_demand)*12*.08
+        powerList_scaled = np.divide(powerList,self.nominal_power)*12
         
         return demandList_scaled, powerList_scaled
         
@@ -116,35 +118,51 @@ class Dataset:
 #########################################
         
 class ElecHydro:
-    def __init__(self, E_loss, P_elec, P_hub):
+    def __init__(self, E_loss, P_elec, power, demand):
         self.E_loss = E_loss
         self.P_elec = P_elec
-        self.P_hub = P_hub
+        self.power = power
+        self.demand = demand
         self.dt = 1 # 1 hour interval
         
         
     def H_driven(self,timeInterval): 
         # dt is [hours]
         # P_elec is [MW]
+        # E_ptx is [MJ]
         self.E_ptx_H_dt = []
         for i in range(timeInterval):
-            self.E_ptx_H_dt.append(min(self.P_elec*self.dt,self.P_hub[i]*self.dt-self.E_loss))
+            self.E_ptx_H_dt.append(min(self.P_elec*self.dt,self.power[i]*self.dt-self.E_loss))
             
         return self.E_ptx_H_dt
     
     def E_driven(self, timeInterval):
         # dt is [hours]
         # P_elec is [MW]
+        # E_ptx is [MJ]
         #self.E_hub = self.P_hub*dt
-        self.E_ptx_E_dt = []
+        E_ptx_E_dt = []
+        
+
+        for i in range(timeInterval):
+            
+            surplus_power = (self.power[i]-self.demand[i].astype(float))
+            
+            if(surplus_power > 0):
+                E_ptx_E_dt.append(surplus_power*self.dt)
+            else:
+                E_ptx_E_dt.append(0)
+            
+        return E_ptx_E_dt
+        '''
         for i in range(timeInterval):
             if(self.P_hub[i]*self.dt-self.P_elec*self.dt > 0):            
                 self.E_ptx_E_dt.append(self.P_hub[i]*self.dt-self.E_loss-min(self.P_hub[i]*self.dt-self.P_elec*self.dt, self.P_hub[i]*self.dt-self.E_loss))
             else:
                 self.E_ptx_E_dt.append(0)
-                
+        
         return self.E_ptx_E_dt
-
+        '''     
 
     def hydrogen_production(self, E_ptx, eff_variation=True):
         # E_ptx [MWh]        
@@ -208,7 +226,7 @@ class ElecHydro:
 
 
 if __name__ == "__main__":
-    nominal_power = 630
+    nominal_power = 630 # Nominal capacity of wind farm [MW]
     getData = Dataset(nominal_power, "../Dataset/windturbine/London_Array.csv", "../Dataset/spot_price/elspotprices.csv", "../Dataset/demand/electricitybalancenonv.csv")
     power = getData.getPower(2015, 1)
     demand = getData.getDemand()
@@ -223,13 +241,12 @@ if __name__ == "__main__":
     
     P_elec = 12
     E_loss = 0
-    P_hub = power
     time_interval = 10
     LOCH = 4.95 #https://www.fchobservatory.eu/observatory/technology-and-market/levelised-cost-of-hydrogen-green-hydrogen-costs
     
     
     # Create object for hydro or elec driven class
-    ElecHydro_obj = ElecHydro(E_loss = E_loss, P_elec = P_elec, P_hub = power)
+    ElecHydro_obj = ElecHydro(E_loss = E_loss, P_elec = P_elec, power = scaled_power, demand = scaled_demand)
     B_H = [None]*time_interval # Binary list of preferable drive state
     H_driven_dataset = ElecHydro_obj.H_driven(time_interval)
     E_driven_dataset = ElecHydro_obj.E_driven(time_interval)
@@ -248,15 +265,17 @@ if __name__ == "__main__":
             B_H[i]=-1
        
     # Get dataset for both H and E driven for a given timesample
-    E_driven_H_production = ElecHydro_obj.hydrogen_production([12,12])
-    H_driven_H_production = ElecHydro_obj.hydrogen_production([12,12])
+    #E_driven_H_production = ElecHydro_obj.hydrogen_production(scaled_power)
+    #H_driven_H_production = ElecHydro_obj.hydrogen_production(scaled_power)
     
+    
+    
+    for i in range(time_interval):
+        print(f"Hour: {i} / E driven dataset: {E_driven_dataset[i]:.2f} [MW] / \
+H driven dataset: {H_driven_dataset[i]:.2f} [MW] / Total power: \
+{scaled_power[i]:.2f} [MW] / Demand: {scaled_demand[i]:.2f} [MW]")
     
     '''
-    for i in range(2):
-        print(f"Hour: {i} / E driven H production: {E_driven_H_production[i]} / H driven H production: {H_driven_H_production[i]}")
-    
-    
     plt.step(range(time_interval),B_H)
     plt.show()
     cp=getData.getPowerFactor()
