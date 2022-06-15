@@ -72,7 +72,7 @@ class ElecHydro:
         return self.E_ptx_E_dt
 
 
-    def hydrogen_production(self, E_ptx, eff_variation=False):
+    def hydrogen_production(self, E_ptx, eff_variation=True):
         # ele_capacity is E_ptx_x_dt
         
         
@@ -90,7 +90,6 @@ class ElecHydro:
                     #h2_production += p_after_converter*1000/4.33 * 0.089/1000
                         
             else:            
-                h2_production = 0
                 # [MW].
                 #p_after_converter = 0.96 * p;
                 #if p_after_converter >= ele_capacity:
@@ -136,9 +135,6 @@ class ElecHydro:
 #########################################
 
 
-
-
- 
 if __name__ == "__main__":
     nominal_power = 630
     getData = Dataset(nominal_power,"../Dataset/windturbine/London_Array.csv")
@@ -146,15 +142,22 @@ if __name__ == "__main__":
     plt.plot(range(8670), power)
     plt.show()
     
-    
-    test_ElecHydro = ElecHydro(E_loss= 0, P_elec = 250, P_hub = power)
+    P_elec = 200
+    E_loss = 0
+    P_hub = power
+    nominal_power = 630
     time_interval = 10
-    B_H = [None]*time_interval
-    H_driven_dataset = test_ElecHydro.H_driven(time_interval)
-    E_driven_dataset = test_ElecHydro.E_driven(time_interval)
-    #print(H_driven_dataset)
-    #print(E_driven_dataset)
+    LOCH = 4.95 #https://www.fchobservatory.eu/observatory/technology-and-market/levelised-cost-of-hydrogen-green-hydrogen-costs
     
+    
+    # Create object for hydro or elec driven class
+    ElecHydro_obj = ElecHydro(E_loss = E_loss, P_elec = P_elec, P_hub = power)
+    B_H = [None]*time_interval # Binary list of preferable drive state
+    H_driven_dataset = ElecHydro_obj.H_driven(time_interval)
+    E_driven_dataset = ElecHydro_obj.E_driven(time_interval)
+
+    
+    # Populate 
     for i in range(time_interval):
         if (H_driven_dataset[i] > E_driven_dataset[i]):
             #print("Hydro driven")
@@ -165,9 +168,16 @@ if __name__ == "__main__":
         else:
             #print("Equally profitable")
             B_H[i]=-1
-            
-    print(test_ElecHydro.hydrogen_production(E_driven_dataset))
+       
+    # Get dataset for both H and E driven for a given timesample
+    E_driven_H_production = ElecHydro_obj.hydrogen_production(E_driven_dataset)
+    H_driven_H_production = ElecHydro_obj.hydrogen_production(H_driven_dataset)
     
+    
+    
+    for i in range(time_interval):
+        
+        print(f"Hour: {i} / E driven H production: {E_driven_H_production[i]} / H driven H production: {H_driven_H_production[i]}")
     
     plt.step(range(time_interval),B_H)
     plt.show()
