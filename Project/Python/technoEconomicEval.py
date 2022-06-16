@@ -82,14 +82,14 @@ class Dataset:
 #########################################
         
 class ElecHydro:
-    def __init__(self, E_loss, P_elec, power_dataset, demand_dataset, price_dataset, LOCH):
+    def __init__(self, E_loss, P_elec, power_dataset, demand_dataset, price_dataset, LCOH):
         self.E_loss = E_loss
         self.P_elec = P_elec
         self.power_dataset = power_dataset
         self.demand_dataset = demand_dataset
         self.price_dataset = price_dataset
         self.dt = 1 # 1 hour interval
-        self.LCOH = LOCH #[EUR/kg] https://www.fchobservatory.eu/observatory/technology-and-market/levelised-cost-of-hydrogen-green-hydrogen-costs
+        self.LCOH = LCOH #[EUR/kg] https://www.fchobservatory.eu/observatory/technology-and-market/levelised-cost-of-hydrogen-green-hydrogen-costs
         
     # This function determines the profit of spot price-driven electrolyzer.
     # If the spot price is below the specified minimum spot price, the total production
@@ -217,13 +217,13 @@ if __name__ == "__main__":
     P_elec = 6
     E_loss = 0
     time_interval = 8760
-    LOCH = 4.95 #https://www.fchobservatory.eu/observatory/technology-and-market/levelised-cost-of-hydrogen-green-hydrogen-costs
-    MinimumSpotPrice = [10, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100,300,400, 500]
-
+    LCOH = 5 #https://www.fchobservatory.eu/observatory/technology-and-market/levelised-cost-of-hydrogen-green-hydrogen-costs
+    #MinimumSpotPrice = [10, 20, 25, 30, 35, 40, 45, 50, 60, 70,80, 90, 500]#, 80, 90, 100,300,400, 500
+    MinimumSpotPrice = list(range(0,500,10))
     # Create object for hydro or elec driven class
     ElecHydro_obj = ElecHydro(E_loss = E_loss, P_elec = P_elec, power_dataset = scaled_power, \
-                              demand_dataset = scaled_demand, price_dataset = price_dataset, LOCH = LOCH)
-    #print(ElecHydro_obj.hydrogen_production(12,False))
+                              demand_dataset = scaled_demand, price_dataset = price_dataset, LCOH = LCOH)
+    #print(ElecHydro_obj.hydrogen_production(6))
     income_sum_E = [None]*len(MinimumSpotPrice)
     income_sum_H = [None]*len(MinimumSpotPrice)
     income_sum_rest = [None]*len(MinimumSpotPrice)
@@ -237,13 +237,13 @@ if __name__ == "__main__":
         
         income_sum_Hydro[i] = ElecHydro_obj.technoEcoEval_Hydro(time_interval) 
         
-        print(f"Spot price: {price:.2f} [EUR/MWh] - Income in given period: {income_sum_SpotPriceDriven[i] / (10**6):.2f} [Mil. EUR] / Utilization factor {utilization_hours[i]/time_interval*100:.2f} [%]" )
+        #print(f"Spot price: {price:.2f} [EUR/MWh] - Income in given period: {income_sum_SpotPriceDriven[i] / (10**6):.2f} [Mil. EUR] / Utilization factor {utilization_hours[i]/time_interval*100:.2f} [%]" )
         
     #plt.step(MinimumSpotPrice, np.multiply(income_sum_E,10**(-6.0)))
     #plt.step(MinimumSpotPrice, np.multiply(income_sum_H,10**(-6.0)))
     #plt.step(MinimumSpotPrice, np.multiply(income_sum_rest,10**(-6.0)))
-    plt.step(MinimumSpotPrice, np.multiply(income_sum_Hydro,10**(-6.0)))
-    plt.step(MinimumSpotPrice, np.multiply(income_sum_SpotPriceDriven, 10**(-6.0)))
+    plt.plot(MinimumSpotPrice, np.multiply(income_sum_Hydro,10**(-6.0)))
+    plt.plot(MinimumSpotPrice, np.multiply(income_sum_SpotPriceDriven, 10**(-6.0)))
     #plt.step(MinimumSpotPrice, np.multiply( np.add(np.add(income_sum_E,income_sum_H), income_sum_rest),10**(-6.0)))
     #plt.legend(["Electricity","Hydrogen", "Rest", "Hydro", "Total"])
     plt.legend(["Hydro driven", "Spot price driven"])
