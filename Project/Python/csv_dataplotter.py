@@ -9,60 +9,23 @@ import numpy as np
 class Dataset:
     def __init__(self, nominal_power, dataset_power_name, dataset_price_name, dataset_demand_name):
         
-        #################
-        # Power dataset #
-        #################
-        
         # load power dataset
-        
         self.nominal_power = nominal_power
-        
         self.dataset_power_name = dataset_power_name
-        '''
-        self.column_power_name = "Power"        
-        self.df_power = pd.read_csv(self.dataset_power_name)
-        
-        # Get column with header "Power"
-        self.column_power_data = self.df_power[self.column_power_name] # "Power" data
-        self.total_power_hours = len(self.column_power_data) # Number of hours "Power" spans
-        self.hours_power_list = list(range(0, self.total_power_hours, 1)) # List of all hours "Power" spans
-        '''
-        self.HOURSINYEAR = 8670
-        
-        #################
-        # Price dataset #
-        #################
         
         # Load price dataset
-        
         self.dataset_price_name = dataset_price_name
-        '''
-        self.column_price_name = "SpotPriceEUR"
-        self.df_price = pd.read_csv(self.dataset_price_name)
-        
-        # Get column with header "SpotPriceEUR"
-        self.column_price_data = self.df_price[self.column_price_name] # "SpotPriceEUR" data
-        self.total_price_hours = len(self.column_price_data) # Number of hours "SpotPriceEUR" spans
-        self.hours_price_list = list(range(0, self.total_price_hours, 1)) # List of all hours  "SpotPriceEUR" spans
-        '''
         
         # Load demand dataset #
         self.dataset_demand_name = dataset_demand_name
         
         
-        #self.loadDataset(self, self.dataset_power_name, "Power")
-        #self.loadDataset(self, self.dataset_price_name, "SpotPriceEUR")
-        
     def loadDataset(self, filename, column_name):
         self.filename = filename
         self.column_name = column_name  
-        
         self.df = pd.read_csv(self.filename)
         column_data = (self.df[self.column_name])
         
-        #print(type(column_data[0]))
-        #if(type(column_data[0]) == 'numpy.float64'):
-        #    print("sses")
         return column_data
     
     
@@ -88,12 +51,13 @@ class Dataset:
         
     def getPower(self, year_start, year_forward):
         # Gets power data from a selected year (e.g. 1980) and x years forward (e.g. 1)
+        HOURSINYEAR = 8670
         power_data = self.loadDataset(self.dataset_power_name, "Power")
     
         total_power_hours = len(power_data) # Number of hours "Power" spans
         hours_power_list = list(range(0, total_power_hours, 1)) # List of all hours "Power" spans
         year_start_mapped = year_start-1980
-        hours_out = hours_power_list[year_start_mapped*self.HOURSINYEAR:year_start_mapped*self.HOURSINYEAR+year_forward*self.HOURSINYEAR]
+        hours_out = hours_power_list[year_start_mapped*HOURSINYEAR:year_start_mapped*HOURSINYEAR+year_forward*HOURSINYEAR]
         self.power = []
         for i in hours_out:
             self.power.append(power_data[i])
@@ -140,10 +104,8 @@ class ElecHydro:
         # dt is [hours]
         # P_elec is [MW]
         # E_ptx is [MJ]
-        #self.E_hub = self.P_hub*dt
         E_ptx_E_dt = []
         
-
         for i in range(timeInterval):
             
             surplus_power = (self.power[i]-self.demand[i].astype(float))
