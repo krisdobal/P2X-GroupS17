@@ -1,5 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt 
+from mpl_toolkits import mplot3d
 import numpy as np
    
 #####################
@@ -82,21 +83,94 @@ class Dataset:
 #########################################
         
 class ElecHydro:
-    def __init__(self, E_loss, P_elec, power_dataset, demand_dataset, price_dataset, LCOH):
+    def __init__(self, E_loss, P_elec, power_dataset, demand_dataset, price_dataset):
         self.E_loss = E_loss
         self.P_elec = P_elec
         self.power_dataset = power_dataset
         self.demand_dataset = demand_dataset
         self.price_dataset = price_dataset
         self.dt = 1 # 1 hour interval
-        self.LCOH = LCOH #[EUR/kg] https://www.fchobservatory.eu/observatory/technology-and-market/levelised-cost-of-hydrogen-green-hydrogen-costs
+        #self.LCOH = LCOH #[EUR/kg] https://www.fchobservatory.eu/observatory/technology-and-market/levelised-cost-of-hydrogen-green-hydrogen-costs
+ 
+    
+    
+    # This function 
+    def technoEcoEval_SpotPriceDriven2(self, timeInterval, HydrogenPrice,P_elechej):
+        income_sum_E = 0
+        income_sum_H = 0
+        income_sum_rest = 0
+        HHV = 33.3/1000 # MWh/kg
+        eta = .66 #[]
+        PriceH2E = HydrogenPrice*eta/HHV
+        utilization_electrolyzer_hours = 0
         
+        for i in range(timeInterval):
+            
+            if(self.price_dataset[i] >= PriceH2E):
+                #if(self)
+                income_sum_E += self.price_dataset[i]*self.power_dataset[i]
+            else:
+                
+                if (self.power_dataset[i] > 0):
+                    utilization_electrolyzer_hours += 1
+                
+                if (self.power_dataset[i] > P_elechej):
+                    income_sum_H += self.hydrogen_production(P_elechej)*HydrogenPrice*1000
+                    income_sum_rest += (self.power_dataset[i] - P_elechej) * self.price_dataset[i]
+                else:
+                    income_sum_H += self.hydrogen_production(self.power_dataset[i])*HydrogenPrice*1000
+        return income_sum_E, income_sum_H, utilization_electrolyzer_hours,  income_sum_rest
+    
+
+    
+    # This function finds the maximum profil for a given hydrogen selling price.
+    def technoEcoEval_FindMaximumProfit(self, HydrogenPrice, timeInterval):
+        income_sum = 0
+        
+        utilization_electrolyzer_hours = 0
+        
+        income_sum_temp = 0;
+        MinimumSpotPrice = 0;  
+        
+        #
+        while MinimumSpotPrice in range(0,500,5):
+            
+            for i in range(timeInterval):
+                
+                if(self.price_dataset[i] >= MinimumSpotPrice):
+                    #if(self)
+                    income_sum += self.price_dataset[i]*self.power_dataset[i]
+                else:
+                    
+                   # if (self.power_dataset[i] > 0):
+                    #    utilization_electrolyzer_hours += 1
+                    
+                    if (self.power_dataset[i] > self.P_elec):
+                        income_sum += self.hydrogen_production(self.P_elec)*HydrogenPrice*1000
+                        income_sum += (self.power_dataset[i] - self.P_elec) *  self.price_dataset[i]
+                        
+                      #pass
+                    else:
+                        income_sum += self.hydrogen_production(self.power_dataset[i])*HydrogenPrice*1000
+
+                        
+            if (income_sum < income_sum_temp):
+                break
+            else:
+                income_sum_temp = income_sum;
+                income_sum = 0;
+                
+            MinimumSpotPrice += 5;
+            
+        return MinimumSpotPrice, income_sum
+
+       
     # This function determines the profit of spot price-driven electrolyzer.
     # If the spot price is below the specified minimum spot price, the total production
     # from the the wind farm is selled on the energy market. 
     # Conversely, the electrolyzer is activated, and any excess energy from the
     # wind farm is selled on the energy market.
-    def technoEcoEval(self, MinimumSpotPrice, timeInterval):
+    def technoEcoEval_SpotPriceDriven(self, MinimumSpotPrice, timeInterval, HydrogenPrice):
         income_sum_E = 0
         income_sum_H = 0
         income_sum_rest = 0
@@ -114,12 +188,12 @@ class ElecHydro:
                     utilization_electrolyzer_hours += 1
                 
                 if (self.power_dataset[i] > self.P_elec):
-                    income_sum_H += self.hydrogen_production(self.P_elec)*self.LCOH*1000
+                    income_sum_H += self.hydrogen_production(self.P_elec)*HydrogenPrice*1000
                     income_sum_rest += (self.power_dataset[i] - self.P_elec) *  self.price_dataset[i]
                     
                   #pass
                 else:
-                    income_sum_H += self.hydrogen_production(self.power_dataset[i])*self.LCOH*1000
+                    income_sum_H += self.hydrogen_production(self.power_dataset[i])*HydrogenPrice*1000
                     #pass
         return income_sum_E, income_sum_H, utilization_electrolyzer_hours,  income_sum_rest
     
@@ -127,7 +201,7 @@ class ElecHydro:
     # The remeaning power from the wind farm is selled on the energy market.
     # The electrolyzer is activated, and any excess energy from the
     # wind farm is selled on the energy market.
-    def technoEcoEval_Hydro(self, timeInterval):
+    def technoEcoEval_Hydro(self, timeInterval, HydrogenPrice):
         income_sum_H = 0
         utilization_electrolyzer_hours = 0;
         
@@ -138,9 +212,9 @@ class ElecHydro:
                     utilization_electrolyzer_hours += 1
             
             if (self.power_dataset[i] > self.P_elec and self.power_dataset[i] > 0):
-                    income_sum_H += self.hydrogen_production(self.P_elec)*self.LCOH*1000 + ((self.power_dataset[i] - self.P_elec) *  self.price_dataset[i])
+                    income_sum_H += self.hydrogen_production(self.P_elec)*HydrogenPrice*1000 + ((self.power_dataset[i] - self.P_elec) *  self.price_dataset[i])
             else:
-                    income_sum_H += self.hydrogen_production(self.power_dataset[i])*self.LCOH*1000
+                    income_sum_H += self.hydrogen_production(self.power_dataset[i])*HydrogenPrice*1000
                     #pass
         return income_sum_H
     
@@ -198,7 +272,7 @@ class ElecHydro:
 #########################################
 #########################################
 
-
+#%%
 if __name__ == "__main__":
     nominal_power = 630 # Nominal capacity of wind farm [MW]
     getData = Dataset(nominal_power, "../Dataset/windturbine/London_Array.csv", "../Dataset/spot_price/elspotprices.csv", "../Dataset/demand/electricitybalancenonv.csv")
@@ -217,38 +291,139 @@ if __name__ == "__main__":
     P_elec = 6
     E_loss = 0
     time_interval = 8760
-    LCOH = 5 #https://www.fchobservatory.eu/observatory/technology-and-market/levelised-cost-of-hydrogen-green-hydrogen-costs
+    HydrogenPrice = 8 #https://www.fchobservatory.eu/observatory/technology-and-market/levelised-cost-of-hydrogen-green-hydrogen-costs
+ 
+    
+    
+    
+    
     #MinimumSpotPrice = [10, 20, 25, 30, 35, 40, 45, 50, 60, 70,80, 90, 500]#, 80, 90, 100,300,400, 500
-    MinimumSpotPrice = list(range(0,500,10))
+    MinimumSpotPrice = list(range(0,500,30))
+    LCOH_g = list(range(0,10,1))
+    
     # Create object for hydro or elec driven class
     ElecHydro_obj = ElecHydro(E_loss = E_loss, P_elec = P_elec, power_dataset = scaled_power, \
-                              demand_dataset = scaled_demand, price_dataset = price_dataset, LCOH = LCOH)
-    #print(ElecHydro_obj.hydrogen_production(6))
-    income_sum_E = [None]*len(MinimumSpotPrice)
-    income_sum_H = [None]*len(MinimumSpotPrice)
-    income_sum_rest = [None]*len(MinimumSpotPrice)
-    income_sum_Hydro = [None]*len(MinimumSpotPrice)
-    income_sum_SpotPriceDriven = [None]*len(MinimumSpotPrice)
-    utilization_hours = [None]*len(MinimumSpotPrice)
+                              demand_dataset = scaled_demand, price_dataset = price_dataset)
+  #  print(ElecHydro_obj.hydrogen_production(6))
     
-    for i,price in enumerate(MinimumSpotPrice):
-        income_sum_E[i], income_sum_H[i], utilization_hours[i], income_sum_rest[i] = ElecHydro_obj.technoEcoEval(price,time_interval)
-        income_sum_SpotPriceDriven[i] = income_sum_E[i] + income_sum_H[i] + income_sum_rest[i];
+  #%%
         
-        income_sum_Hydro[i] = ElecHydro_obj.technoEcoEval_Hydro(time_interval) 
-        
+#    income_sum_E = [None]*len(MinimumSpotPrice)
+#    income_sum_H = [None]*len(MinimumSpotPrice)
+#    income_sum_rest = [None]*len(MinimumSpotPrice)
+#    income_sum_Hydro = [None]*len(MinimumSpotPrice)
+#    income_sum_SpotPriceDriven = [None]*len(MinimumSpotPrice)
+#    utilization_hours = [None]*len(MinimumSpotPrice)
+#    
+#    for i,price in enumerate(MinimumSpotPrice):
+#        income_sum_E[i], income_sum_H[i], utilization_hours[i], income_sum_rest[i] = ElecHydro_obj.technoEcoEval_SpotPriceDriven(price,time_interval, HydrogenPrice)
+#        income_sum_SpotPriceDriven[i] = income_sum_E[i] + income_sum_H[i] + income_sum_rest[i];
+#        
+#        income_sum_Hydro[i] = ElecHydro_obj.technoEcoEval_Hydro(time_interval, HydrogenPrice) 
+#        
+#        #print(f"Spot price: {price:.2f} [EUR/MWh] - Income in given period: {income_sum_SpotPriceDriven[i] / (10**6):.2f} [Mil. EUR] / Utilization factor {utilization_hours[i]/time_interval*100:.2f} [%]" )
+#        
+#    #plt.step(MinimumSpotPrice, np.multiply(income_sum_E,10**(-6.0)))
+#    #plt.step(MinimumSpotPrice, np.multiply(income_sum_H,10**(-6.0)))
+#    #plt.step(MinimumSpotPrice, np.multiply(income_sum_rest,10**(-6.0)))
+#    plt.plot(MinimumSpotPrice, np.multiply(income_sum_Hydro,10**(-6.0)))
+#    plt.plot(MinimumSpotPrice, np.multiply(income_sum_SpotPriceDriven, 10**(-6.0)))
+#    #plt.step(MinimumSpotPrice, np.multiply( np.add(np.add(income_sum_E,income_sum_H), income_sum_rest),10**(-6.0)))
+#    #plt.legend(["Electricity","Hydrogen", "Rest", "Hydro", "Total"])
+#    plt.legend(["Hydro driven", "Spot price driven"])
+#    plt.xlabel("Minimum spot price [EUR/MWh]")
+#    plt.ylabel("[Mil. EUR]")
+#    plt.grid()
+#    plt.show()
+#    
+    #%%    
+#    OptimalSpotPrice = [None]*len(LCOH_g)
+#    EE = [None]*len(LCOH_g)
+#    
+#    for i,LCOH in enumerate(LCOH_g):
+#        OptimalSpotPrice[i], EE[i] = ElecHydro_obj.technoEcoEval_FindMaximumProfit(LCOH,time_interval)
+#    
+#    
+#    plt.plot(LCOH_g, np.multiply(EE,  10**(-6.0)))
+#
+#   # plt.legend(["Hydro driven"])
+#    plt.xlabel("Hydrogen selling price [EUR/kg]")
+#    plt.ylabel("[Mil. EUR]")
+#    plt.grid()
+#    plt.show()
+    #price_dataset[price_dataset>600]
+
+#%%
+#    P_elec = list(range(0,10,1))
+#    #x = np.array([[1, 2, 3], [4, 5, 6]], np.int32)
+#    
+#    income_sum_E = np.ndarray(shape=(len(LCOH_g),len(P_elec)))
+#    income_sum_H  = np.ndarray(shape=(len(LCOH_g),len(P_elec)))    
+#    income_sum_rest = np.ndarray(shape=(len(LCOH_g),len(P_elec)))
+#    income_sum_Hydro = np.ndarray(shape=(len(LCOH_g),len(P_elec)))
+#    income_sum_SpotPriceDriven = np.ndarray(shape=(len(LCOH_g),len(P_elec)))
+#    utilization_hours = np.ndarray(shape=(len(LCOH_g),len(P_elec)))
+#    
+#    
+#    for i,HydrogenPrice in enumerate(LCOH_g):
+#        for j,P_elechej in enumerate(P_elec):
+#            income_sum_E[i,j], income_sum_H[i,j], utilization_hours[i,j], income_sum_rest[i,j] = ElecHydro_obj.technoEcoEval_SpotPriceDriven2(time_interval, HydrogenPrice, P_elechej)
+#            income_sum_SpotPriceDriven[i,j] = income_sum_E[i,j] + income_sum_H[i,j] + income_sum_rest[i,j];
+#    
+#    
+#        #income_sum_Hydro[i] = ElecHydro_obj.technoEcoEval_Hydro(time_interval, HydrogenPrice) 
+#        
         #print(f"Spot price: {price:.2f} [EUR/MWh] - Income in given period: {income_sum_SpotPriceDriven[i] / (10**6):.2f} [Mil. EUR] / Utilization factor {utilization_hours[i]/time_interval*100:.2f} [%]" )
-        
+#%%        
     #plt.step(MinimumSpotPrice, np.multiply(income_sum_E,10**(-6.0)))
     #plt.step(MinimumSpotPrice, np.multiply(income_sum_H,10**(-6.0)))
     #plt.step(MinimumSpotPrice, np.multiply(income_sum_rest,10**(-6.0)))
-    plt.plot(MinimumSpotPrice, np.multiply(income_sum_Hydro,10**(-6.0)))
-    plt.plot(MinimumSpotPrice, np.multiply(income_sum_SpotPriceDriven, 10**(-6.0)))
-    #plt.step(MinimumSpotPrice, np.multiply( np.add(np.add(income_sum_E,income_sum_H), income_sum_rest),10**(-6.0)))
-    #plt.legend(["Electricity","Hydrogen", "Rest", "Hydro", "Total"])
-    plt.legend(["Hydro driven", "Spot price driven"])
-    plt.xlabel("Minimum spot price [EUR/MWh]")
-    plt.ylabel("[Mil. EUR]")
-    plt.grid()
+    #plt.plot(MinimumSpotPrice, np.multiply(income_sum_Hydro,10**(-6.0)))
+    #plt.plot(MinimumSpotPrice, np.multiply(income_sum_SpotPriceDriven, 10**(-6.0)))
+    #plt.plot(LCOH_g, np.multiply( np.add(np.add(income_sum_E,income_sum_H), income_sum_rest),10**(-6.0)))
+    #fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+    # Make data.
+    def f(HydrogenPrice, P_elechej):
+       income_sum_E, income_sum_H, utilization_hours, income_sum_rest = ElecHydro_obj.technoEcoEval_SpotPriceDriven2(time_interval, HydrogenPrice, P_elechej)
+       return income_sum_E + income_sum_H + income_sum_rest
+   
+    HydrogenPrice = np.linspace(0, 4, 11)
+    P_elechej = np.linspace(0, 4, 11)
+    
+    #Z = [[None] * len(P_elechej) for i in range(0,len(P_elechej)) ]
+    HYDROGENPRICE, P_ELECHEJ = np.meshgrid(HydrogenPrice, P_elechej)
+    
+    Z =  np.zeros([len(HydrogenPrice), len(P_elechej)])
+    
+    for x, Hyrdro in enumerate(HydrogenPrice):
+        for y, Pelec in enumerate(P_elechej):
+            Z[x, y] =   f(Hyrdro, Pelec)  
+    #Z = f(HYDROGENPRICE, P_ELECHEJ)
+    
+    fig = plt.figure()
+    
+    ax = plt.axes(projection='3d')
+    ax.contour3D(HYDROGENPRICE, P_ELECHEJ,  np.multiply(Z, 10**(-6.0)), 50)
+    ax.set_xlabel('Hydrogen price [EUR/kg]')
+    ax.set_ylabel('Electrolyzer capacity [MW]')
+    ax.set_zlabel('Profit [Mil. EUR]')
+    ax.set_title('3D contour')
     plt.show()
-#price_dataset[price_dataset>600]
+    
+    
+    
+    
+    #surf = ax.plot_surface(LCOH_g,P_elec, np.multiply( np.add(np.add(income_sum_E,income_sum_H), income_sum_rest),10**(-6.0)), cmap=cm.coolwarm, linewidth=0, antialiased=False)
+    # Customize the z axis.
+
+    #ax.plot_surface(X, Y, Z, cmap=cm.coolwarm,
+     #                       linewidth=0, antialiased=False)
+    #plt.legend(["Electricity","Hydrogen", "Rest", "Hydro", "Total"])
+    #plt.legend(["Hydro driven", "Spot price driven"])
+    #plt.xlabel("Hydrogen selling price [EUR/kg]")
+    #plt.ylabel("[Mil. EUR]")
+    #plt.grid()
+    #plt.show()
+    
+    
+    
