@@ -124,7 +124,7 @@ class ElecHydro:
                     if(self.power_dataset[i] > 0):
                         notfull += 1;
                #      
-        return income_sum_E - (P_elechej * 1000 * 1000) , utilization_electrolyzer_hours,full, notfull
+        return income_sum_E - (P_elechej * 1000 * 600) , utilization_electrolyzer_hours,full, notfull
        
     
     # This function 
@@ -447,28 +447,28 @@ if __name__ == "__main__":
     
     
     
- #%% Plot of profit as a function of wind farm capacity.  
+ #%% Plot of profit as a function of electrolyzer capacity.  
     
 
-    # Electro_Capacity = list(range(0,16,1))
-    # Profit = [None]*len(Electro_Capacity)
-    # utilization_hours = [None]*len(Electro_Capacity)
-    # full = [None]*len(Electro_Capacity) 
-    # notfull = [None]*len(Electro_Capacity) 
-    # SellingPrice = 30 # [EUR/kg]
+    Electro_Capacity = list(range(0,16,1))
+    Profit = [None]*len(Electro_Capacity)
+    utilization_hours = [None]*len(Electro_Capacity)
+    full = [None]*len(Electro_Capacity) 
+    notfull = [None]*len(Electro_Capacity) 
+    SellingPrice = 10 # [EUR/kg]
     
-    # for i,Capacity in enumerate(Electro_Capacity):
-    #     Profit[i], utilization_hours[i], full[i], notfull[i] = ElecHydro_obj.technoEcoEval_SpotPriceDriven33(time_interval, SellingPrice, Capacity)
+    for i,Capacity in enumerate(Electro_Capacity):
+        Profit[i], utilization_hours[i], full[i], notfull[i] = ElecHydro_obj.technoEcoEval_SpotPriceDriven33(time_interval, SellingPrice, Capacity)
      
      
-    # plt.plot(Electro_Capacity, np.multiply(Profit,  10**(-6.0)))
+    plt.plot(Electro_Capacity, np.multiply(Profit,  10**(-6.0)))
      
-    # # plt.legend(["Hydro driven"])
-    # plt.xlabel("Electrolyzer capacity [MW]")
-    # plt.ylabel("[Mil. EUR]")
-    # plt.grid()
-    # plt.title('Hydro selling price %0.2f [EUR/kg]' %SellingPrice)
-    # plt.show()   
+    # plt.legend(["Hydro driven"])
+    plt.xlabel("Electrolyzer capacity [MW]")
+    plt.ylabel("[Mil. EUR]")
+    plt.grid()
+    plt.title('Hydro selling price %0.2f [EUR/kg]' %SellingPrice)
+    plt.show()   
   
   #%% Plot of profit as a function of hydro selling price.  
      
@@ -495,72 +495,72 @@ if __name__ == "__main__":
     
  # #%%  Plot 3D plot of profit as a function of hydro selling price and Electrolyzer capacity.
 
-    def f(HydrogenPrice, P_elechej):
-        income_sum_E, utilization_hours, full, notfull = ElecHydro_obj.technoEcoEval_SpotPriceDriven33(time_interval, HydrogenPrice, P_elechej)
+    # def f(HydrogenPrice, P_elechej):
+    #     income_sum_E, utilization_hours, full, notfull = ElecHydro_obj.technoEcoEval_SpotPriceDriven33(time_interval, HydrogenPrice, P_elechej)
     
-        return income_sum_E, utilization_hours
+    #     return income_sum_E, utilization_hours
   
-    HydrogenPrice = np.linspace(0, 10, 10)
-    P_elechej = np.linspace(0, 15, 10)
+    # HydrogenPrice = np.linspace(0, 10, 10)
+    # P_elechej = np.linspace(0, 15, 10)
    
-    #Z = [[None] * len(P_elechej) for i in range(0,len(P_elechej)) ]
-    HYDROGENPRICE, P_ELECHEJ = np.meshgrid(HydrogenPrice, P_elechej)
+    # #Z = [[None] * len(P_elechej) for i in range(0,len(P_elechej)) ]
+    # HYDROGENPRICE, P_ELECHEJ = np.meshgrid(HydrogenPrice, P_elechej)
    
-    Z =  np.zeros([len(HydrogenPrice), len(P_elechej)])
-    Z2 =  np.zeros([len(HydrogenPrice), len(P_elechej)])
+    # Z =  np.zeros([len(HydrogenPrice), len(P_elechej)])
+    # Z2 =  np.zeros([len(HydrogenPrice), len(P_elechej)])
    
 
-    for x, Hyrdro in enumerate(HydrogenPrice):
-        for y, Pelec in enumerate(P_elechej):
-            income_sum_E, utilization_hours = f(Hyrdro, Pelec) ;
-            Z[y, x] = income_sum_E  * 10**(-6.0)
-            Z2[y, x] = utilization_hours  / time_interval * 100;
+    # for x, Hyrdro in enumerate(HydrogenPrice):
+    #     for y, Pelec in enumerate(P_elechej):
+    #         income_sum_E, utilization_hours = f(Hyrdro, Pelec) ;
+    #         Z[y, x] = income_sum_E  * 10**(-6.0)
+    #         Z2[y, x] = utilization_hours  / time_interval * 100;
             
-    #Z = f(HYDROGENPRICE, P_ELECHEJ)
+    # #Z = f(HYDROGENPRICE, P_ELECHEJ)
 
-    fig = plt.figure(1 ,figsize=(5 ,5) , dpi=100)
+    # fig = plt.figure(1 ,figsize=(5 ,5) , dpi=100)
    
-    ax = plt.axes(projection='3d')
-    mappable = plt.cm.ScalarMappable()
-    mappable.set_array(Z)
-    #ax.plot_surface(HYDROGENPRICE, P_ELECHEJ,  np.multiply(Z, 10**(-6.0)), cmap=cm.hsv, linewidth=0, antialiased=False)
-    ax.plot_surface(HYDROGENPRICE, P_ELECHEJ,  Z, cmap=mappable.cmap, linewidth=0, antialiased=False, norm=mappable.norm,)
-    #contourf
-    clb=plt.colorbar(mappable)
-    clb.ax.tick_params(labelsize=8) 
-    #clb.ax.set_title('Your Label',fontsize=8)
-    clb.set_label('Profit [Mil. EUR]')
-    fig.tight_layout()
+    # ax = plt.axes(projection='3d')
+    # mappable = plt.cm.ScalarMappable()
+    # mappable.set_array(Z)
+    # #ax.plot_surface(HYDROGENPRICE, P_ELECHEJ,  np.multiply(Z, 10**(-6.0)), cmap=cm.hsv, linewidth=0, antialiased=False)
+    # ax.plot_surface(HYDROGENPRICE, P_ELECHEJ,  Z, cmap=mappable.cmap, linewidth=0, antialiased=False, norm=mappable.norm,)
+    # #contourf
+    # clb=plt.colorbar(mappable)
+    # clb.ax.tick_params(labelsize=8) 
+    # #clb.ax.set_title('Your Label',fontsize=8)
+    # clb.set_label('Profit [Mil. EUR]')
+    # fig.tight_layout()
     
-    plt.margins(x=0 ,y=0)
-    #plt.colorbar(mappable)
-    #ax.contour3D(HYDROGENPRICE, P_ELECHEJ,  np.multiply(Z, 1/time_interval), 50)
-    ax.set_xlabel('Selling hydro price [EUR/kg]')
-    ax.set_ylabel('Electrolyzer capacity [MW]')
-    #ax.set_zlabel('')
-    #ax.set_title('Profit [Mil. EUR]')
-    plt.show()
+    # plt.margins(x=0 ,y=0)
+    # #plt.colorbar(mappable)
+    # #ax.contour3D(HYDROGENPRICE, P_ELECHEJ,  np.multiply(Z, 1/time_interval), 50)
+    # ax.set_xlabel('Selling hydro price [EUR/kg]')
+    # ax.set_ylabel('Electrolyzer capacity [MW]')
+    # #ax.set_zlabel('')
+    # #ax.set_title('Profit [Mil. EUR]')
+    # plt.show()
     
-    fig = plt.figure(2 ,figsize=(5 ,5) , dpi=100)
+    # fig = plt.figure(2 ,figsize=(5 ,5) , dpi=100)
    
-    ax = plt.axes(projection='3d')
-    mappable = plt.cm.ScalarMappable()
-    mappable.set_array(Z2)
-    #ax.plot_surface(HYDROGENPRICE, P_ELECHEJ,  np.multiply(Z, 10**(-6.0)), cmap=cm.hsv, linewidth=0, antialiased=False)
-    ax.plot_surface(HYDROGENPRICE, P_ELECHEJ,  Z2, cmap=mappable.cmap, linewidth=0, antialiased=False, norm=mappable.norm,)
-    #contourf
-    clb=plt.colorbar(mappable)
-    clb.ax.tick_params(labelsize=8) 
-    #clb.ax.set_title('Your Label',fontsize=8)
-    clb.set_label('Electrolyzer utilization percentage')
-    fig.tight_layout()
+    # ax = plt.axes(projection='3d')
+    # mappable = plt.cm.ScalarMappable()
+    # mappable.set_array(Z2)
+    # #ax.plot_surface(HYDROGENPRICE, P_ELECHEJ,  np.multiply(Z, 10**(-6.0)), cmap=cm.hsv, linewidth=0, antialiased=False)
+    # ax.plot_surface(HYDROGENPRICE, P_ELECHEJ,  Z2, cmap=mappable.cmap, linewidth=0, antialiased=False, norm=mappable.norm,)
+    # #contourf
+    # clb=plt.colorbar(mappable)
+    # clb.ax.tick_params(labelsize=8) 
+    # #clb.ax.set_title('Your Label',fontsize=8)
+    # clb.set_label('Electrolyzer utilization percentage')
+    # fig.tight_layout()
     
-    plt.margins(x=0 ,y=0)
-    #plt.colorbar(mappable)
-    #ax.contour3D(HYDROGENPRICE, P_ELECHEJ,  np.multiply(Z, 1/time_interval), 50)
-    ax.set_xlabel('Selling hydro price [EUR/kg]')
-    ax.set_ylabel('Electrolyzer capacity [MW]')
-    #ax.set_zlabel('')
-    #ax.set_title('Profit [Mil. EUR]')
-    plt.show()   
+    # plt.margins(x=0 ,y=0)
+    # #plt.colorbar(mappable)
+    # #ax.contour3D(HYDROGENPRICE, P_ELECHEJ,  np.multiply(Z, 1/time_interval), 50)
+    # ax.set_xlabel('Selling hydro price [EUR/kg]')
+    # ax.set_ylabel('Electrolyzer capacity [MW]')
+    # #ax.set_zlabel('')
+    # #ax.set_title('Profit [Mil. EUR]')
+    # plt.show()   
        
