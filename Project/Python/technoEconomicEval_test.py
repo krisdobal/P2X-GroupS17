@@ -99,15 +99,18 @@ class ElecHydro:
 
         HHV = 33.3/1000 # MWh/kg
         eta = .66 #[]
-        PriceH2E = HydrogenPrice*eta/HHV
+        PriceH2E = HydrogenPrice*eta/HHV #[EUR/MWh]
         utilization_electrolyzer_hours = 0
         full = 0
         notfull = 0;
+        Hourly_OPEX_sum = 0; #[EUR]
         
+        Hourly_OPEX = 1; #[EUR/Hour per electrolyzer capacity]
+        
+        # Run through the entiry year.
         for i in range(timeInterval):
             
             if(self.price_dataset[i] >= PriceH2E):
-                #if(self)
                 income_sum_E += self.price_dataset[i]*self.power_dataset[i]
             else:
                 
@@ -116,15 +119,23 @@ class ElecHydro:
                 
                 if (self.power_dataset[i] > P_elechej):
                     income_sum_E += self.hydrogen_production(P_elechej)*HydrogenPrice*1000
+                    
                     if(self.power_dataset[i] > 0):
                         full += 1;
+                        
+                        if(P_elechej > 0):
+                            Hourly_OPEX_sum += Hourly_OPEX;
+                        
                     income_sum_E += (self.power_dataset[i] - P_elechej) * self.price_dataset[i]
                 else:
                     income_sum_E += self.hydrogen_production(self.power_dataset[i])*HydrogenPrice*1000
                     if(self.power_dataset[i] > 0):
                         notfull += 1;
+                        
+                        if(P_elechej > 0):
+                            Hourly_OPEX_sum += Hourly_OPEX * self.power_dataset[i] / P_elechej;
                #      
-        return income_sum_E - (P_elechej * 1000 * 600) , utilization_electrolyzer_hours,full, notfull
+        return 3*(income_sum_E - ((P_elechej * 1000 * 1000) * 0.02) - Hourly_OPEX_sum) - ((P_elechej * 1000 * 1000)), utilization_electrolyzer_hours,full, notfull
        
     
     # This function 
@@ -455,7 +466,7 @@ if __name__ == "__main__":
     utilization_hours = [None]*len(Electro_Capacity)
     full = [None]*len(Electro_Capacity) 
     notfull = [None]*len(Electro_Capacity) 
-    SellingPrice = 10 # [EUR/kg]
+    SellingPrice = 8 # [EUR/kg]
     
     for i,Capacity in enumerate(Electro_Capacity):
         Profit[i], utilization_hours[i], full[i], notfull[i] = ElecHydro_obj.technoEcoEval_SpotPriceDriven33(time_interval, SellingPrice, Capacity)
@@ -478,7 +489,7 @@ if __name__ == "__main__":
     # utilization_hours = [None]*len(SellingPrice)
     # full = [None]*len(SellingPrice) 
     # notfull = [None]*len(SellingPrice) 
-    # Electro_Capacity = 15 # [MW]
+    # Electro_Capacity = 0 # [MW]
     
     # for i,Price in enumerate(SellingPrice):
     #     Profit[i], utilization_hours[i], full[i], notfull[i] = ElecHydro_obj.technoEcoEval_SpotPriceDriven33(time_interval, Price, Electro_Capacity)
@@ -493,14 +504,14 @@ if __name__ == "__main__":
     # plt.title('Electrolyzer capacity %0.2f [MW]' %Electro_Capacity)
     # plt.show()      
     
- # #%%  Plot 3D plot of profit as a function of hydro selling price and Electrolyzer capacity.
+ #%%  Plot 3D plot of profit as a function of hydro selling price and Electrolyzer capacity.
 
     # def f(HydrogenPrice, P_elechej):
     #     income_sum_E, utilization_hours, full, notfull = ElecHydro_obj.technoEcoEval_SpotPriceDriven33(time_interval, HydrogenPrice, P_elechej)
     
     #     return income_sum_E, utilization_hours
   
-    # HydrogenPrice = np.linspace(0, 10, 10)
+    # HydrogenPrice = np.linspace(0, 8, 10)
     # P_elechej = np.linspace(0, 15, 10)
    
     # #Z = [[None] * len(P_elechej) for i in range(0,len(P_elechej)) ]
