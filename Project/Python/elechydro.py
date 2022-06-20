@@ -62,12 +62,12 @@ class ElecHydro:
                #      
         CAPEX = (P_elec_capacity * capex * 1000);     
         OPEX_Yearly = CAPEX * yearly_opex
-        print(P_elec_capacity)
-        print(OPEX_Yearly)
-        print(Hourly_OPEX_sum)
-        print(CAPEX)
-        print(income_sum_E)
-        print("")
+#        print(P_elec_capacity)
+#        print(OPEX_Yearly)
+#        print(Hourly_OPEX_sum)
+#        print(CAPEX)
+#        print(income_sum_E)
+#        print("")
         return years*(income_sum_E - OPEX_Yearly - Hourly_OPEX_sum) - CAPEX, utilization_electrolyzer_hours,full, notfull
 
     
@@ -239,11 +239,22 @@ class ElecHydro:
         # H2 production rate as a function of power [Nm^3/h].
         p = (a * p_input) + b    
         
-        ff = p * hydroCap * (2771.36 / hydroCap)
+        ff = p * hydroCap * (2771.36 / 12)
         
         # H2 production [ton]
         h2_production = ff * 0.089/1000
             
         return h2_production
     
+    
+    def calc_OPEX(self, capex, P_elec, ):
+        utilization_electrolyzer_hours = 1000
+        OPEX_tot = capex*0.0344*(P_elec*10**3)**-0.155
+        OPEX_tot += 
+        
+        
+        
+        
+        
+        
     
