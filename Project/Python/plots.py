@@ -150,7 +150,7 @@ class Plots:
   #%% Plot of profit as a function of hydro selling price.  
          
     def profit_hydroPrice(self, Electro_Capacity = 0, startPrice = 0, endPrice = 13):
-        SellingPrice=list(range(0,13,1))
+        SellingPrice=list(range(startPrice,endPrice,1))
         #Electro_Capacity is [MW]
         Profit = [None]*len(SellingPrice)
         utilization_hours = [None]*len(SellingPrice)
