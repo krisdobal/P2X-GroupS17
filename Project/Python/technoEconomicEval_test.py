@@ -43,8 +43,11 @@ if __name__ == "__main__":
     
     # Plots
     plots_obj = plots.Plots(ElecHydro_obj, time_interval, MinimumSpotPrice)
+    # Plot of profit as a function of hydro selling price.  
     plots_obj.profit_hydroPrice()
+    # Plot of profit as a function of electrolyzer capacity.  
     plots_obj.profit_elecCap()
+    # Plot 3D plot of profit as a function of hydro selling price and Electrolyzer capacity.
     plots_obj.profit_hydroPrice_elecCap()
     
   #  print(ElecHydro_obj.hydrogen_production(6))
