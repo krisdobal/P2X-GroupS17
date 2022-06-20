@@ -13,7 +13,97 @@ class ElecHydro:
         self.price_dataset = price_dataset
         self.dt = 1 # 1 hour interval
         #self.LCOH = LCOH #[EUR/kg] https://www.fchobservatory.eu/observatory/technology-and-market/levelised-cost-of-hydrogen-green-hydrogen-costs
+
+    # This function 
+    def technoEcoEval_SpotPriceDriven_PeakShaving(self, timeInterval, HydrogenPrice, P_elec_capacity, years, capex, yearly_opex, Hourly_OPEX):
+        #Hourly_OPEX [EUR/Hour per electrolyzer capacity]
+        
+        income_sum_E = 0
+
+        HHV = 33.3/1000 # MWh/kg
+        eta = .66 #[]
+        PriceH2E = HydrogenPrice*eta/HHV #[EUR/MWh]
+        utilization_electrolyzer_hours = 0
+       # full = 0
+       # notfull = 0;
+        Hourly_OPEX_sum = 0; #[EUR]
+        Electrolyzer_cap = 0;
+        Electricity_cap = 0;
+
+        # Power threshold of peak shaving [MW].
+        PeakPowerThreshold = 12 - P_elec_capacity;
+        
+        
+        # Run through the entiry year.
+        for i in range(timeInterval):
+            
+            # If spot price is larger than the energy price of hydrogen:
+            # ELECTRICITY DRIVEN
+            if(self.price_dataset[i] >= PriceH2E):
+               # Electricity_cap = self.power_dataset[i]
+               # Electrolyzer_cap = 0;
+                
+               # If the actual wind farm production is below the power threshold.
+                if (self.power_dataset[i] <= PeakPowerThreshold):
+                        
+                    Electricity_cap = self.power_dataset[i]
+                    Electrolyzer_cap = 0
+                    
  
+                    
+                else:
+                    Electricity_cap = PeakPowerThreshold
+                    Electrolyzer_cap = self.power_dataset[i] - PeakPowerThreshold;
+                    
+                    if(Electrolyzer_cap > 0):
+                        Hourly_OPEX_sum += Hourly_OPEX * Electrolyzer_cap / P_elec_capacity;
+                
+            # If spot price is below than the energy price of hydrogen.   
+            # HYDROGEN DRIVEN
+            else:
+                
+                if (self.power_dataset[i] > 0):
+                    utilization_electrolyzer_hours += 1
+                
+                if (self.power_dataset[i] > P_elec_capacity):
+                    #income_sum_E += self.hydrogen_production(P_elec_capacity, P_elec_capacity)*HydrogenPrice*1000
+                    Electricity_cap = self.power_dataset[i] - P_elec_capacity
+                    Electrolyzer_cap = P_elec_capacity;
+                    
+                    if(self.power_dataset[i] > 0):
+                    #    full += 1;
+                        
+                        if(P_elec_capacity > 0):
+                            Hourly_OPEX_sum += Hourly_OPEX;
+                        
+                    #income_sum_E += (self.power_dataset[i] - P_elec_capacity) * self.price_dataset[i]
+                else:
+                   # income_sum_E += self.hydrogen_production(self.power_dataset[i], P_elec_capacity)*HydrogenPrice*1000
+                    Electricity_cap = 0
+                    Electrolyzer_cap = self.power_dataset[i];
+                    
+                    if(self.power_dataset[i] > 0):
+                    #    notfull += 1;
+                        
+                        if(P_elec_capacity > 0):
+                            Hourly_OPEX_sum += Hourly_OPEX * self.power_dataset[i] / P_elec_capacity;
+            
+            
+            income_sum_E += (Electricity_cap) * self.price_dataset[i]
+            income_sum_E += self.hydrogen_production(Electrolyzer_cap, P_elec_capacity)*1000*HydrogenPrice
+                       #      
+        CAPEX = (P_elec_capacity * capex * 1000);     
+        OPEX_Yearly = CAPEX * yearly_opex
+        
+
+#        print(P_elec_capacity)
+#        print(OPEX_Yearly)
+#        print(Hourly_OPEX_sum)
+#        print(CAPEX)
+#        print(income_sum_E)
+#        print("")
+        return years*(income_sum_E - OPEX_Yearly - Hourly_OPEX_sum) - CAPEX, utilization_electrolyzer_hours
+    
     # This function 
     def technoEcoEval_SpotPriceDriven_capex_opex(self, timeInterval, HydrogenPrice, P_elec_capacity, years, capex, yearly_opex, Hourly_OPEX):
         #Hourly_OPEX [EUR/Hour per electrolyzer capacity]
