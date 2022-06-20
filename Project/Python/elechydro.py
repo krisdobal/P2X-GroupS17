@@ -68,6 +68,7 @@ class ElecHydro:
 #        print(CAPEX)
 #        print(income_sum_E)
 #        print("")
+        print(utilization_electrolyzer_hours)
         return years*(income_sum_E - OPEX_Yearly - Hourly_OPEX_sum) - CAPEX, utilization_electrolyzer_hours,full, notfull
 
     
