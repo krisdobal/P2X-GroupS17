@@ -15,7 +15,9 @@ class ElecHydro:
         #self.LCOH = LCOH #[EUR/kg] https://www.fchobservatory.eu/observatory/technology-and-market/levelised-cost-of-hydrogen-green-hydrogen-costs
  
     # This function 
-    def technoEcoEval_SpotPriceDriven_capex_opex(self, timeInterval, HydrogenPrice, P_elechej):
+    def technoEcoEval_SpotPriceDriven_capex_opex(self, timeInterval, HydrogenPrice, P_elec_capacity, years, capex, yearly_opex, Hourly_OPEX):
+        #Hourly_OPEX [EUR/Hour per electrolyzer capacity]
+        
         income_sum_E = 0
 
         HHV = 33.3/1000 # MWh/kg
@@ -26,8 +28,9 @@ class ElecHydro:
         notfull = 0;
         Hourly_OPEX_sum = 0; #[EUR]
         
-        Hourly_OPEX = 1; #[EUR/Hour per electrolyzer capacity]
-        
+       # if (P_elechej >= 12):
+        #    P_elechej = 12;
+            
         # Run through the entiry year.
         for i in range(timeInterval):
             
@@ -38,25 +41,34 @@ class ElecHydro:
                 if (self.power_dataset[i] > 0):
                     utilization_electrolyzer_hours += 1
                 
-                if (self.power_dataset[i] > P_elechej):
-                    income_sum_E += self.hydrogen_production(P_elechej, P_elechej)*HydrogenPrice*1000
+                if (self.power_dataset[i] > P_elec_capacity):
+                    income_sum_E += self.hydrogen_production(P_elec_capacity, P_elec_capacity)*HydrogenPrice*1000
                     
                     if(self.power_dataset[i] > 0):
                         full += 1;
                         
-                        if(P_elechej > 0):
+                        if(P_elec_capacity > 0):
                             Hourly_OPEX_sum += Hourly_OPEX;
                         
-                    income_sum_E += (self.power_dataset[i] - P_elechej) * self.price_dataset[i]
+                    income_sum_E += (self.power_dataset[i] - P_elec_capacity) * self.price_dataset[i]
                 else:
-                    income_sum_E += self.hydrogen_production(self.power_dataset[i], P_elechej)*HydrogenPrice*1000
+                    income_sum_E += self.hydrogen_production(self.power_dataset[i], P_elec_capacity)*HydrogenPrice*1000
+                    
                     if(self.power_dataset[i] > 0):
                         notfull += 1;
                         
-                        if(P_elechej > 0):
-                            Hourly_OPEX_sum += Hourly_OPEX * self.power_dataset[i] / P_elechej;
+                        if(P_elec_capacity > 0):
+                            Hourly_OPEX_sum += Hourly_OPEX# * self.power_dataset[i] / P_elechej;
                #      
-        return 3*(income_sum_E - ((P_elechej * 1000 * 1000) * 0.02) - Hourly_OPEX_sum) - ((P_elechej * 1000 * 1000)), utilization_electrolyzer_hours,full, notfull
+        CAPEX = (P_elec_capacity * capex * 1000);     
+        OPEX_Yearly = CAPEX * yearly_opex
+        print(P_elec_capacity)
+        print(OPEX_Yearly)
+        print(Hourly_OPEX_sum)
+        print(CAPEX)
+        print(income_sum_E)
+        print("")
+        return years*(income_sum_E - OPEX_Yearly - Hourly_OPEX_sum) - CAPEX, utilization_electrolyzer_hours,full, notfull
 
     
     # This function 
