@@ -39,7 +39,7 @@ class ElecHydro:
                     utilization_electrolyzer_hours += 1
                 
                 if (self.power_dataset[i] > P_elechej):
-                    income_sum_E += self.hydrogen_production(P_elechej)*HydrogenPrice*1000
+                    income_sum_E += self.hydrogen_production(P_elechej, P_elechej)*HydrogenPrice*1000
                     
                     if(self.power_dataset[i] > 0):
                         full += 1;
@@ -49,7 +49,7 @@ class ElecHydro:
                         
                     income_sum_E += (self.power_dataset[i] - P_elechej) * self.price_dataset[i]
                 else:
-                    income_sum_E += self.hydrogen_production(self.power_dataset[i])*HydrogenPrice*1000
+                    income_sum_E += self.hydrogen_production(self.power_dataset[i], P_elechej)*HydrogenPrice*1000
                     if(self.power_dataset[i] > 0):
                         notfull += 1;
                         
@@ -80,10 +80,10 @@ class ElecHydro:
                     utilization_electrolyzer_hours += 1
                 
                 if (self.power_dataset[i] > P_elechej):
-                    income_sum_H += self.hydrogen_production(P_elechej)*HydrogenPrice*1000
+                    income_sum_H += self.hydrogen_production(P_elechej, P_elechej)*HydrogenPrice*1000
                     income_sum_rest += (self.power_dataset[i] - P_elechej) * self.price_dataset[i]
                 else:
-                    income_sum_H += self.hydrogen_production(self.power_dataset[i])*HydrogenPrice*1000
+                    income_sum_H += self.hydrogen_production(self.power_dataset[i], P_elechej)*HydrogenPrice*1000
         return income_sum_E, income_sum_H, utilization_electrolyzer_hours,  income_sum_rest
     
 
@@ -111,12 +111,12 @@ class ElecHydro:
                     #    utilization_electrolyzer_hours += 1
                     
                     if (self.power_dataset[i] > self.P_elec):
-                        income_sum += self.hydrogen_production(self.P_elec)*HydrogenPrice*1000
+                        income_sum += self.hydrogen_production(self.P_elec, self.P_elec)*HydrogenPrice*1000
                         income_sum += (self.power_dataset[i] - self.P_elec) *  self.price_dataset[i]
                         
                       #pass
                     else:
-                        income_sum += self.hydrogen_production(self.power_dataset[i])*HydrogenPrice*1000
+                        income_sum += self.hydrogen_production(self.power_dataset[i], self.P_elec)*HydrogenPrice*1000
 
                         
             if (income_sum < income_sum_temp):
@@ -153,12 +153,12 @@ class ElecHydro:
                     utilization_electrolyzer_hours += 1
                 
                 if (self.power_dataset[i] > self.P_elec):
-                    income_sum_H += self.hydrogen_production(self.P_elec)*HydrogenPrice*1000
+                    income_sum_H += self.hydrogen_production(self.P_elec, self.P_elec)*HydrogenPrice*1000
                     income_sum_rest += (self.power_dataset[i] - self.P_elec) *  self.price_dataset[i]
                     
                   #pass
                 else:
-                    income_sum_H += self.hydrogen_production(self.power_dataset[i])*HydrogenPrice*1000
+                    income_sum_H += self.hydrogen_production(self.power_dataset[i],self.P_elec)*HydrogenPrice*1000
                     #pass
         return income_sum_E, income_sum_H, utilization_electrolyzer_hours,  income_sum_rest
     
@@ -177,9 +177,9 @@ class ElecHydro:
                     utilization_electrolyzer_hours += 1
             
             if (self.power_dataset[i] > self.P_elec and self.power_dataset[i] > 0):
-                    income_sum_H += self.hydrogen_production(self.P_elec)*HydrogenPrice*1000 + ((self.power_dataset[i] - self.P_elec) *  self.price_dataset[i])
+                    income_sum_H += self.hydrogen_production(self.P_elec, self.P_elec)*HydrogenPrice*1000 + ((self.power_dataset[i] - self.P_elec) *  self.price_dataset[i])
             else:
-                    income_sum_H += self.hydrogen_production(self.power_dataset[i])*HydrogenPrice*1000
+                    income_sum_H += self.hydrogen_production(self.power_dataset[i], self.P_elec)*HydrogenPrice*1000
                     #pass
         return income_sum_H
     
@@ -187,11 +187,14 @@ class ElecHydro:
     
          
     # This function determines the hydrogen production in unit ton.
-    def hydrogen_production(self, P_ptx):
+    def hydrogen_production(self, P_ptx, hydroCap):
         # E_ptx [MWh]        
         h2_production = 0
-
-        p_input = P_ptx/self.P_elec;
+        
+        if(hydroCap > 0):
+            p_input = P_ptx/hydroCap;
+        else:
+            p_input = 0
 
        
         if p_input > 0.468 and p_input <= 1:
@@ -224,7 +227,7 @@ class ElecHydro:
         # H2 production rate as a function of power [Nm^3/h].
         p = (a * p_input) + b    
         
-        ff = p * self.P_elec * (2771.36 / 12)
+        ff = p * hydroCap * (2771.36 / 12)
         
         # H2 production [ton]
         h2_production = ff * 0.089/1000

@@ -127,13 +127,12 @@ class Plots:
     
  #%% Plot of profit as a function of electrolyzer capacity.  
     
-    def profit_elecCap(self, Electro_Capacity = list(range(0,16,1))):
-    
+    def profit_elecCap(self, SellingPrice = 8, startCap = 0, endCap = 16):
+        Electro_Capacity = list(range(startCap,endCap,1))
         Profit = [None]*len(Electro_Capacity)
         utilization_hours = [None]*len(Electro_Capacity)
         full = [None]*len(Electro_Capacity) 
-        notfull = [None]*len(Electro_Capacity) 
-        SellingPrice = 8 # [EUR/kg]
+        notfull = [None]*len(Electro_Capacity)
         
         for i,Capacity in enumerate(Electro_Capacity):
             Profit[i], utilization_hours[i], full[i], notfull[i] = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_capex_opex(self.time_interval, SellingPrice, Capacity)
@@ -150,12 +149,14 @@ class Plots:
   
   #%% Plot of profit as a function of hydro selling price.  
          
-    def profit_hydroPrice(self, SellingPrice=list(range(0,13,1))):
+    def profit_hydroPrice(self, Electro_Capacity = 0, startPrice = 0, endPrice = 13):
+        SellingPrice=list(range(0,13,1))
+        #Electro_Capacity is [MW]
         Profit = [None]*len(SellingPrice)
         utilization_hours = [None]*len(SellingPrice)
         full = [None]*len(SellingPrice) 
         notfull = [None]*len(SellingPrice) 
-        Electro_Capacity = 0 # [MW]
+        
         
         for i,Price in enumerate(SellingPrice):
             Profit[i], utilization_hours[i], full[i], notfull[i] = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_capex_opex(self.time_interval, Price, Electro_Capacity)
@@ -188,7 +189,7 @@ class Plots:
         
          #Z = f(HYDROGENPRICE, P_ELECHEJ)
         
-        fig = plt.figure(1 ,figsize=(5 ,5) , dpi=100)
+        fig = plt.figure(figsize=(5 ,5) , dpi=100)
            
         ax = plt.axes(projection='3d')
         mappable = plt.cm.ScalarMappable()
