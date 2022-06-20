@@ -42,8 +42,9 @@ class ElecHydro:
         income_sum_E = 0
 
         HHV = 33.3/1000 # MWh/kg
-        eta = .66 #[]
+        eta = .66 #[] electrolyser efficiency
         
+        #Mode changes between 0: spotprice driven, 1= Electricity driven, 2= Hydrogen driven
         if (Mode == 0):
             PriceH2E = HydrogenPrice*eta/HHV #[EUR/MWh]
         elif (Mode == 2):
@@ -69,21 +70,14 @@ class ElecHydro:
             # If spot price is larger than the energy price of hydrogen:
             # ELECTRICITY DRIVEN
             if(self.price_dataset[i] >= PriceH2E):
-               # Electricity_cap = self.power_dataset[i]
-               # Electrolyzer_cap = 0;
-                
                # If the actual wind farm production is below the power threshold.
                 if (self.power_dataset[i] <= PeakPowerThreshold):
-                        
                     Electricity_cap = self.power_dataset[i]
                     Electrolyzer_cap = 0
-                    
- 
-                    
+                # IF wind production is above threshold produce on both
                 else:
                     Electricity_cap = PeakPowerThreshold
                     Electrolyzer_cap = self.power_dataset[i] - PeakPowerThreshold;
-                    
                     if(Electrolyzer_cap > 0):
                         Hourly_OPEX_sum += Hourly_OPEX * Electrolyzer_cap / P_elec_capacity;
                 
@@ -95,28 +89,23 @@ class ElecHydro:
                     utilization_electrolyzer_hours += 1
                 
                 if (self.power_dataset[i] > P_elec_capacity):
-                    #income_sum_E += self.hydrogen_production(P_elec_capacity, P_elec_capacity)*HydrogenPrice*1000
                     Electricity_cap = self.power_dataset[i] - P_elec_capacity
                     Electrolyzer_cap = P_elec_capacity;
                     
                     if(self.power_dataset[i] > 0):
                     #    full += 1;
-                        
                         if(P_elec_capacity > 0):
                             Hourly_OPEX_sum += Hourly_OPEX;
                         
-                    #income_sum_E += (self.power_dataset[i] - P_elec_capacity) * self.price_dataset[i]
                 else:
-                   # income_sum_E += self.hydrogen_production(self.power_dataset[i], P_elec_capacity)*HydrogenPrice*1000
                     Electricity_cap = 0
                     Electrolyzer_cap = self.power_dataset[i];
                     
                     if(self.power_dataset[i] > 0):
                     #    notfull += 1;
-                        
+                    
                         if(P_elec_capacity > 0):
                             Hourly_OPEX_sum += Hourly_OPEX * self.power_dataset[i] / P_elec_capacity;
-            
             
             Electricity_cap = self.technoEcoEval_CalculateDeliveredPower(Electricity_cap, self.dt)
             income_sum_E += (Electricity_cap) * self.price_dataset[i]
@@ -132,6 +121,7 @@ class ElecHydro:
 #        print(CAPEX)
 #        print(income_sum_E)
 #        print("")
+        # Returns the profit of the given year, when the Capex have been spread across the operation years
         return years*(income_sum_E - OPEX_Yearly - Hourly_OPEX_sum) - CAPEX, utilization_electrolyzer_hours
     
     # This function 
@@ -147,10 +137,7 @@ class ElecHydro:
         full = 0
         notfull = 0;
         Hourly_OPEX_sum = 0; #[EUR]
-        
-        
-       # if (P_elechej >= 12):
-        #    P_elechej = 12;
+    
             
         # Run through the entiry year.
         for i in range(timeInterval):
@@ -363,14 +350,14 @@ class ElecHydro:
         
         b = (-a*x2) + y2
         
- 
-        # H2 production rate as a function of power [Nm^3/h].
+        # H2 production relative to the capacity 
         p = (a * p_input) + b    
         
+        # H2 production rate as a function of power [Nm^3/h].
         ff = p * hydroCap * (2771.36 / 12)
         
-        # H2 production [ton]
-        h2_production = ff * 0.089/1000
+        # H2 production [ton] and conversion from volume to kg 
+        h2_production = ff * 0.089/1000 # 0.089 kg/m^3 
             
         return h2_production
     
