@@ -16,8 +16,8 @@ if __name__ == "__main__":
     demand = getData.getDemand()
     price_dataset = getData.getPrice()
     
-    scaled_demand, scaled_power = getData.scalePowerAndDemand(demand, power)
-    
+    scaled_demand, scaled_power = getData.scalePowerAndDemand(demand, power, 3*10**3)
+    #scaled_demand, scaled_power = getData.scalePowerAndDemand_old(demand, power)
     #print(scaled_demand*.8*12)
     #print(scaled_power*12)
     
@@ -48,7 +48,7 @@ if __name__ == "__main__":
     #plots_obj.profit_hydroPrice(Electro_Capacity = 0, startPrice = 4, endPrice = 13, years = 3, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1)
     
     # Plot of profit as a function of electrolyzer capacity.  
-    plots_obj.profit_elecCap(SellingPrice = 8, startCap = 0, endCap = 20, years = 1, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1)
+    plots_obj.profit_elecCap(SellingPrice = 6, startCap = 0, endCap = 3*10**3, years = 5, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1)
     
     # Plot 3D plot of profit as a function of hydro selling price and Electrolyzer capacity.
    # plots_obj.profit_hydroPrice_elecCap(startPrice = 0, endPrice = 8,  startCap = 0, endCap = 15, years = 3, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1)

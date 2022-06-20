@@ -42,11 +42,24 @@ class Dataset:
         return TotalLoad_data_DK2
                 
         
-    def scalePowerAndDemand(self, demandList, powerList):
+    def scalePowerAndDemand(self, demandList, powerList, scalePower):
+        maxValue_demand = max(demandList)
+
+        demandList_scaled = np.divide(demandList,maxValue_demand)*12*.08
+        #powerList_scaled = np.divide(powerList,self.nominal_power)*12
+        
+        powerList_scaled = np.multiply(powerList, scalePower/self.nominal_power)
+        
+        return demandList_scaled, powerList_scaled
+    
+    
+    def scalePowerAndDemand_old(self, demandList, powerList):
         maxValue_demand = max(demandList)
 
         demandList_scaled = np.divide(demandList,maxValue_demand)*12*.08
         powerList_scaled = np.divide(powerList,self.nominal_power)*12
+        
+        #powerList_scaled = np.multiply(powerList, scalePower/self.nominal_power)
         
         return demandList_scaled, powerList_scaled
         
