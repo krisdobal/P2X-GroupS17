@@ -121,7 +121,40 @@ class Plots:
     # ax.set_title('3D contour')
     # plt.show()
     
+
+ #%% Comparison of peak shaving profit as a function of electrolyzer capacity. 
     
+    def profit_PeakShaving_2d_comparison(self, SellingPrice = 8, startCap = 0, endCap = 16, years = 3, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1):
+        Electro_Capacity = list(range(startCap,endCap,1))
+        Profit = [None]*len(Electro_Capacity)
+        utilization_hours = [None]*len(Electro_Capacity)
+        #full = [None]*len(Electro_Capacity) 
+        #notfull = [None]*len(Electro_Capacity)
+        
+        for i,Capacity in enumerate(Electro_Capacity):
+            Profit[i], utilization_hours[i] = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, SellingPrice, Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 0)
+         
+        plt.plot(Electro_Capacity, np.multiply(Profit,  10**(-6.0)))
+        
+        for i,Capacity in enumerate(Electro_Capacity):
+            Profit[i], utilization_hours[i] = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, SellingPrice, Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 1)
+         
+        plt.plot(Electro_Capacity, np.multiply(Profit,  10**(-6.0)))     
+        
+        for i,Capacity in enumerate(Electro_Capacity):
+            Profit[i], utilization_hours[i] = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, SellingPrice, Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 2)
+         
+        plt.plot(Electro_Capacity, np.multiply(Profit,  10**(-6.0)))      
+        
+        
+        plt.legend(["Spot-price driven", "Hydrogen driven", "Electricity driven"])
+        plt.xlabel("Electrolyzer capacity [MW]")
+        plt.ylabel("[Mil. EUR]")
+        plt.grid()
+        plt.title('Hydro selling price %0.2f [EUR/kg] on peak shaving' %SellingPrice)
+        plt.show() 
+        
+        
  #%% Plot of peak shaving profit as a function of electrolyzer capacity.  
     
     def profit_PeakShaving_2d(self, SellingPrice = 8, startCap = 0, endCap = 16, years = 3, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1):

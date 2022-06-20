@@ -55,7 +55,13 @@ if __name__ == "__main__":
     
   #  print(ElecHydro_obj.hydrogen_production(6))
   
-    # Plot of peak shaving profit as a function of electrolyzer capacity.  
+    # 2D plot of peak shaving profit as a function of electrolyzer capacity.  
     #plots_obj.profit_PeakShaving_2d(SellingPrice = 8, startCap = 0, endCap = 16, years = 3, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1)
-    plots_obj.profit_PeakShaving_3d(startPrice = 0, endPrice = 8, startCap = 0, endCap = 16, years = 5, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1)
+
+    # 3d Plot of peak shaving profit as a function of electrolyzer capacity.  
+    #plots_obj.profit_PeakShaving_3d(startPrice = 0, endPrice = 8, startCap = 0, endCap = 16, years = 5, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1)
     
+    # Comparison of peak shaving profit as a function of electrolyzer capacity.   
+    plots_obj.profit_PeakShaving_2d_comparison(SellingPrice = 6, startCap = 0, endCap = 12, years = 5, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1)
+       
+        
