@@ -239,7 +239,7 @@ class ElecHydro:
         # H2 production rate as a function of power [Nm^3/h].
         p = (a * p_input) + b    
         
-        ff = p * hydroCap * (2771.36 / 12)
+        ff = p * hydroCap * (2771.36 / hydroCap)
         
         # H2 production [ton]
         h2_production = ff * 0.089/1000
