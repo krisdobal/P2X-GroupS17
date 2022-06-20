@@ -246,11 +246,7 @@ class ElecHydro:
             
         return h2_production
     
-    
-    def calc_OPEX(self, capex, P_elec, ):
-        utilization_electrolyzer_hours = 1000
-        OPEX_tot = capex*0.0344*(P_elec*10**3)**-0.155
-        OPEX_tot += 
+
         
         
         
