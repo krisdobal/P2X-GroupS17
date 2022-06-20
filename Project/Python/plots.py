@@ -213,7 +213,7 @@ class Plots:
  #%% Plot of profit as a function of electrolyzer capacity.  
     
     def profit_elecCap(self, SellingPrice = 8, startCap = 0, endCap = 16, years = 3, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1):
-        Electro_Capacity = list(range(startCap,endCap,1))
+        Electro_Capacity = list(range(startCap,endCap,200))
         Profit = [None]*len(Electro_Capacity)
         utilization_hours = [None]*len(Electro_Capacity)
         full = [None]*len(Electro_Capacity) 
