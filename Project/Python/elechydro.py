@@ -14,15 +14,43 @@ class ElecHydro:
         self.dt = 1 # 1 hour interval
         #self.LCOH = LCOH #[EUR/kg] https://www.fchobservatory.eu/observatory/technology-and-market/levelised-cost-of-hydrogen-green-hydrogen-costs
 
+    def technoEcoEval_CalculateDeliveredPower(self, SendingPower,dt):
+        # The energy loss at the conversion station  
+        eta_st = 1/100;
+        
+        # The number of the substation
+        N_HVDC_st = 2;
+        
+        # Energy loss per km
+        eta_HS = 0.0035 / 100;
+        
+        # The distance from the hub to the shore [km].
+        L_HS = 100
+        
+        # Sending energy [MJ].
+        SendingEnergy = (SendingPower/dt) 
+        
+        # loss energy [MJ].
+        Loss = SendingEnergy * (eta_st * N_HVDC_st + eta_HS * L_HS);
+        
+        return (SendingEnergy - Loss)* dt
+        
     # This function 
-    def technoEcoEval_SpotPriceDriven_PeakShaving(self, timeInterval, HydrogenPrice, P_elec_capacity, years, capex, yearly_opex, Hourly_OPEX):
+    def technoEcoEval_SpotPriceDriven_PeakShaving(self, timeInterval, HydrogenPrice, P_elec_capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 0):
         #Hourly_OPEX [EUR/Hour per electrolyzer capacity]
         
         income_sum_E = 0
 
         HHV = 33.3/1000 # MWh/kg
         eta = .66 #[]
-        PriceH2E = HydrogenPrice*eta/HHV #[EUR/MWh]
+        
+        if (Mode == 0):
+            PriceH2E = HydrogenPrice*eta/HHV #[EUR/MWh]
+        elif (Mode == 2):
+            PriceH2E = 0;
+        else:
+            PriceH2E = 10**6;
+            
         utilization_electrolyzer_hours = 0
        # full = 0
        # notfull = 0;
@@ -36,6 +64,7 @@ class ElecHydro:
         
         # Run through the entiry year.
         for i in range(timeInterval):
+           
             
             # If spot price is larger than the energy price of hydrogen:
             # ELECTRICITY DRIVEN
@@ -89,6 +118,7 @@ class ElecHydro:
                             Hourly_OPEX_sum += Hourly_OPEX * self.power_dataset[i] / P_elec_capacity;
             
             
+            Electricity_cap = self.technoEcoEval_CalculateDeliveredPower(Electricity_cap, self.dt)
             income_sum_E += (Electricity_cap) * self.price_dataset[i]
             income_sum_E += self.hydrogen_production(Electrolyzer_cap, P_elec_capacity)*1000*HydrogenPrice
                        #      
