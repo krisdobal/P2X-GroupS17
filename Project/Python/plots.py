@@ -197,7 +197,7 @@ class Plots:
         #full = [None]*len(Electro_Capacity) 
         #notfull = [None]*len(Electro_Capacity)
         factor = 1000
-        fig = plt.figure(figsize=(10 ,10) , dpi=100)
+        fig = plt.figure(figsize=(5,5), dpi=200)
         ax = plt.axes()
         
         maxVal = 15500/10**(-6.0)
@@ -228,12 +228,25 @@ class Plots:
 #            minVal = np.min(Profit2)
             
         
+        Profit_total = [Profit0,Profit1,Profit2]
         
-        plt.plot(np.divide(Electro_Capacity,factor), np.multiply(Profit0,  10**(-6.0)))
+        for i in Profit_total:
+            plt.plot(np.divide(Electro_Capacity,factor), np.multiply(i,  10**(-6.0)))
+        fig.tight_layout()
+        plt.tick_params(labelsize=8)
+        #plt.margins(x=0,y=0)
+        plt.xlabel("Electrolyzer capacity [GW]")
+        plt.ylabel("Revenue [MEUR]")
+        plt.legend(["Hydrogen driven", "Electricity driven", "Spot price driven"],fontsize=8)
+        plt.grid()
+          
+
+            
+
         
 #        plt.yticks(np.linspace(minVal*(1-0.05) * 10**(-6.0), maxVal*(1+0.05)*10**(-6.0), self.granularity_2d))
 #        plt.ylim(minVal*(1-0.05) * 10**(-6.0),  maxVal*(1+0.05)*10**(-6.0))
-
+        '''
         plt.yticks(np.linspace(minVal*(1-0.02) * 10**(-6.0), maxVal*(1+0.02)*10**(-6.0), self.granularity_2d))
         plt.ylim(minVal*(1-0.02) * 10**(-6.0),  maxVal*(1+0.02)*10**(-6.0))        
         
@@ -248,12 +261,11 @@ class Plots:
     
         plt.yticks(np.linspace(minVal*(1-0.02) * 10**(-6.0), maxVal*(1+0.02)*10**(-6.0), self.granularity_2d))
         plt.ylim(minVal*(1-0.02) * 10**(-6.0),  maxVal*(1+0.02)*10**(-6.0))        
+        '''
         
         
-        plt.legend(["Hydrogen driven", "Electricity driven", "Spot price driven"])
-        plt.xlabel("Electrolyzer capacity [GW]")
-        plt.ylabel("Revenue [MEUR]")
-        
+
+
         
 
         
@@ -265,7 +277,7 @@ class Plots:
 
 # Add the grid
 #ax.grid(which='major', axis='both', linestyle='-')
-        plt.grid()
+       
         #plt.title('Hydro selling price %0.2f [EUR/kg] on peak shaving' %SellingPrice)
         plt.savefig(f"./plots/profit_PeakShaving_2d_comparison/elec_capVSrevenue_hydrogenPrice{SellingPrice}.eps")
         plt.show() 
@@ -319,7 +331,7 @@ class Plots:
         
 
         
-        fig = plt.figure(figsize=(5 ,5) , dpi=100)
+        fig = plt.figure(figsize=(5 ,5) , dpi=200)
            
         ax = plt.axes(projection='3d')
         mappable = plt.cm.ScalarMappable()
@@ -340,6 +352,7 @@ class Plots:
         ax.set_ylabel('Electrolyzer capacity [GW]')
          #ax.set_zlabel('')
         #ax.set_title('Revenue vs Electrolyzer capacity vs ')
+        plt.tick_params(labelsize=8)
         plt.show()
         plt.savefig(f"./plots/profit_PeakShaving_3d/elec_capVSrevenueVShydrogenPrice_3d.eps")
         '''
