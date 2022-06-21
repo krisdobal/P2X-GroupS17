@@ -325,7 +325,7 @@ class Plots:
         mappable = plt.cm.ScalarMappable()
         mappable.set_array(Z)
         #ax.plot_surface(HYDROGENPRICE, P_ELECHEJ,  np.multiply(Z, 10**(-6.0)), cmap=cm.hsv, linewidth=0, antialiased=False)
-        ax.plot_surface(HYDROGENPRICE, P_ELECHEJ,  Z, cmap=mappable.cmap, linewidth=0, antialiased=False, norm=mappable.norm,)
+        ax.plot_surface(HYDROGENPRICE, np.divide(P_ELECHEJ,1000),  Z, cmap=mappable.cmap, linewidth=0, antialiased=False, norm=mappable.norm,)
         #contourf
         clb=plt.colorbar(mappable)
         clb.ax.tick_params(labelsize=8) 
@@ -337,10 +337,11 @@ class Plots:
         #plt.colorbar(mappable)
          #ax.contour3D(HYDROGENPRICE, P_ELECHEJ,  np.multiply(Z, 1/time_interval), 50)
         ax.set_xlabel('Hydrogen market price [EUR/kg]')
-        ax.set_ylabel('Electrolyzer capacity [MW]')
+        ax.set_ylabel('Electrolyzer capacity [GW]')
          #ax.set_zlabel('')
         #ax.set_title('Revenue vs Electrolyzer capacity vs ')
         plt.show()
+        plt.savefig(f"./plots/profit_PeakShaving_3d/elec_capVSrevenueVShydrogenPrice_3d.eps")
         '''
         fig = plt.figure(2 ,figsize=(5 ,5) , dpi=100)
            
