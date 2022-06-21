@@ -5,13 +5,13 @@ Created on Mon Jun 20 09:40:01 2022
 @author: s152955
 """
 class ElecHydro:
-    def __init__(self, E_loss, P_elec, power_dataset, demand_dataset, price_dataset):
+    def __init__(self, E_loss, P_elec, power_dataset, price_dataset, scaleVal):
         self.E_loss = E_loss
         self.P_elec = P_elec
         self.power_dataset = power_dataset
-        self.demand_dataset = demand_dataset
         self.price_dataset = price_dataset
         self.dt = 1 # 1 hour interval
+        self.scaleVal = scaleVal
         #self.LCOH = LCOH #[EUR/kg] https://www.fchobservatory.eu/observatory/technology-and-market/levelised-cost-of-hydrogen-green-hydrogen-costs
 
     def technoEcoEval_CalculateDeliveredPower(self, SendingPower,dt):
@@ -37,6 +37,8 @@ class ElecHydro:
         
     # This function 
     def technoEcoEval_SpotPriceDriven_PeakShaving(self, timeInterval, HydrogenPrice, P_elec_capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 0):
+        # TODO: account for negative prices at high winds 
+        
         #Hourly_OPEX [EUR/Hour per electrolyzer capacity]
         
         income_sum_E = 0
@@ -60,7 +62,7 @@ class ElecHydro:
         Electricity_cap = 0;
 
         # Power threshold of peak shaving [MW].
-        PeakPowerThreshold = 12 - P_elec_capacity;
+        PeakPowerThreshold = self.scaleVal - P_elec_capacity;
         
         
         # Run through the entiry year.
@@ -79,8 +81,12 @@ class ElecHydro:
                     Electricity_cap = PeakPowerThreshold
                     Electrolyzer_cap = self.power_dataset[i] - PeakPowerThreshold;
                     if(Electrolyzer_cap > 0):
-                        Hourly_OPEX_sum += Hourly_OPEX * Electrolyzer_cap / P_elec_capacity;
+                        if(P_elec_capacity == 0):
+                            Hourly_OPEX_sum += 0
+                        else:
+                            Hourly_OPEX_sum += Hourly_OPEX * Electrolyzer_cap / P_elec_capacity;
                 
+            
             # If spot price is below than the energy price of hydrogen.   
             # HYDROGEN DRIVEN
             else:
@@ -111,8 +117,13 @@ class ElecHydro:
             income_sum_E += (Electricity_cap) * self.price_dataset[i]
             income_sum_E += self.hydrogen_production(Electrolyzer_cap, P_elec_capacity)*1000*HydrogenPrice
                        #      
-        CAPEX = (P_elec_capacity * capex * 1000);     
-        OPEX_Yearly = CAPEX * yearly_opex
+        ### Electrolyzer CAPEX+OPEX ###
+        CAPEX_elec = (P_elec_capacity * capex * 1000);     
+        OPEX_Yearly_elec = CAPEX_elec * yearly_opex
+        
+        ### Wind CAPEX+OPEX ###        
+        CAPEX_wind = (1311*1000*self.scaleVal) # ex1 
+        OPEX_Yearly_wind = CAPEX_wind * 0.02
         
 
 #        print(P_elec_capacity)
@@ -122,7 +133,7 @@ class ElecHydro:
 #        print(income_sum_E)
 #        print("")
         # Returns the profit of the given year, when the Capex have been spread across the operation years
-        return years*(income_sum_E - OPEX_Yearly - Hourly_OPEX_sum) - CAPEX, utilization_electrolyzer_hours
+        return years*(income_sum_E - (OPEX_Yearly_elec+OPEX_Yearly_wind) - Hourly_OPEX_sum) - (CAPEX_elec+CAPEX_wind), utilization_electrolyzer_hours
     
     # This function 
     def technoEcoEval_SpotPriceDriven_capex_opex(self, timeInterval, HydrogenPrice, P_elec_capacity, years, capex, yearly_opex, Hourly_OPEX):
@@ -354,7 +365,7 @@ class ElecHydro:
         p = (a * p_input) + b    
         
         # H2 production rate as a function of power [Nm^3/h].
-        ff = p * hydroCap * (2771.36 / 12)
+        ff = p * hydroCap * (2771.36 / 12) # 12 has  nothing to do with scaleVal DO NOT CHANGE
         
         # H2 production [ton] and conversion from volume to kg 
         h2_production = ff * 0.089/1000 # 0.089 kg/m^3 
