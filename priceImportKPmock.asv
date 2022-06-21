@@ -1,6 +1,6 @@
 clear; clc; close all;
 
-spot = readtable('elspotprices.xlsx');
+spot = readcsv('elspotprices.csv');
 wind5_1 = readtable('electricityprodex5minrealtimeJanJune.xlsx');
 wind5_2 = readtable('electricityprodex5minrealtimeJulDec.xlsx');
 wind5 = [wind5_1;wind5_2];
@@ -16,7 +16,7 @@ hold on
 yyaxis right
 plot(t5m,wind5.OffshoreWindPower)
 ylabel('Windpower $[MW]$','Interpreter','latex');
-title('Windo', 'FontSize',DefFontSize*1.5,'Interpreter','latex');
+title('spotprice and windpower production of 2021','Interpreter','latex');
 
 % https://api.energidataservice.dk/datastore_search?resource_id=electricityprodex5minrealtime&limit=5
 % {"query":"query Dataset {electricityprodex5minrealtime(where: {Minutes5UTC: {_gte: \"2021-01-01\", _lt: \"2022-01-01\"}PriceArea: {_eq: \"DK1\"}} order_by: {Minutes5UTC: asc} limit: 100 offset: 0){Minutes5UTC Minutes5DK PriceArea ProductionLt100MW ProductionGe100MW OffshoreWindPower OnshoreWindPower SolarPower ExchangeGreatBelt ExchangeGermany ExchangeNetherlands ExchangeNorway ExchangeSweden BornholmSE4 }}"}
