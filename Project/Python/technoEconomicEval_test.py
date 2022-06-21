@@ -56,12 +56,11 @@ if __name__ == "__main__":
     #plots_obj.profit_PeakShaving_2d(SellingPrice = 2, startCap = 0, endCap = 3*10**3, years = 20, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1)
 
     # 3d Plot of peak shaving profit as a function of electrolyzer capacity.
-    #plots_obj.profit_PeakShaving_3d(startPrice = 0, endPrice = 8, startCap = 0, endCap = 3*10**3, years = 20, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1)
+    plots_obj.profit_PeakShaving_3d(startPrice = 0, endPrice = 6, startCap = 0, endCap = 3*10**3, years = 20, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1)
 
     # Comparison of peak shaving profit as a function of electrolyzer capacity.
     sellingPrice = [1.7, 2.5, 3, 4]
-    for i in sellingPrice:
-        plots_obj.profit_PeakShaving_2d_comparison(SellingPrice = i, startCap = 0, endCap = 3*10**3, years = 20, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1)
+    #for i in sellingPrice:
+    #    plots_obj.profit_PeakShaving_2d_comparison(SellingPrice = i, startCap = 0, endCap = 3*10**3, years = 20, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1)
        # plt.savefig(f"elec_capVSrevenue_hydrogenPrice{i}.eps")
-    #plots_obj.profit_PeakShaving_3d_comparison(startSellingPrice = 2, stopSellingPrice = 10, startCap = 0, endCap = 16, years = 5, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1)
-    #############
+       #############
