@@ -198,11 +198,7 @@ class Plots:
         fig = plt.figure(figsize=(10 ,10) , dpi=100)
         ax = plt.axes()
         
-        for i,Capacity in enumerate(Electro_Capacity):
-            Profit[i], utilization_hours[i] = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, SellingPrice, Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 0)
-         
-        plt.plot(np.divide(Electro_Capacity,factor), np.multiply(np.divide(Profit,factor),  10**(-6.0)))
-        
+
         for i,Capacity in enumerate(Electro_Capacity):
             Profit[i], utilization_hours[i] = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, SellingPrice, Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 1)
          
@@ -211,11 +207,17 @@ class Plots:
         for i,Capacity in enumerate(Electro_Capacity):
             Profit[i], utilization_hours[i] = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, SellingPrice, Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 2)
          
-        plt.plot(np.divide(Electro_Capacity,factor), np.multiply(np.divide(Profit,factor),  10**(-6.0)))    
+        plt.plot(np.divide(Electro_Capacity,factor), np.multiply(np.divide(Profit,factor),  10**(-6.0)))  
+        
+        for i,Capacity in enumerate(Electro_Capacity):
+            Profit[i], utilization_hours[i] = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, SellingPrice, Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 0)
+         
+        plt.plot(np.divide(Electro_Capacity,factor), np.multiply(np.divide(Profit,factor),  10**(-6.0)))
         
         
-        plt.legend(["Spot price driven", "Hydrogen driven", "Electricity driven"])
-        plt.xlabel("Electrolyzer capacity [MW]")
+        
+        plt.legend(["Hydrogen driven", "Electricity driven", "Spot price driven"])
+        plt.xlabel("Electrolyzer capacity [GW]")
         plt.ylabel("Revenue [MEUR]")
         
         '''
@@ -225,15 +227,16 @@ class Plots:
         plt.ylim(min(locs), max(locs))
         '''
         
-        locx = plticker.MultipleLocator(base=endCap*0.1)
-        locy = plticker.MultipleLocator(base=np.max(np.multiply(Profit,  10**(-6.0)))*0.1)
-        ax.xaxis.set_major_locator(locx)
-        ax.yaxis.set_major_locator(locy)
+        #locx = plticker.MultipleLocator(base=endCap*0.1)
+       # locy = plticker.MultipleLocator(base=np.max(np.multiply(Profit,  10**(-6.0)))*0.1)
+       # ax.xaxis.set_major_locator(locx)
+        #ax.yaxis.set_major_locator(locy)
 
 # Add the grid
 #ax.grid(which='major', axis='both', linestyle='-')
         plt.grid()
         #plt.title('Hydro selling price %0.2f [EUR/kg] on peak shaving' %SellingPrice)
+        plt.savefig(f"./plots/profit_PeakShaving_2d_comparison/elec_capVSrevenue_hydrogenPrice{SellingPrice}.eps")
         plt.show() 
         
         

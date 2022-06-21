@@ -38,7 +38,7 @@ if __name__ == "__main__":
     # Create object for hydro or elec driven class
     ElecHydro_obj = eh.ElecHydro(E_loss=E_loss, P_elec=P_elec, power_dataset=scaled_power,
                                   price_dataset=price_dataset, scaleVal = scaleUpVal)
-
+    
     ### Plots ###
     plots_obj = plots.Plots(ElecHydro_obj=ElecHydro_obj, time_interval=time_interval, MinimumSpotPrice=MinimumSpotPrice, granularity_3d=30, granularity_2d=10)
 
@@ -59,8 +59,9 @@ if __name__ == "__main__":
     #plots_obj.profit_PeakShaving_3d(startPrice = 0, endPrice = 8, startCap = 0, endCap = 3*10**3, years = 20, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1)
 
     # Comparison of peak shaving profit as a function of electrolyzer capacity.
-    for i in range(2,10,2):
-        plots_obj.profit_PeakShaving_2d_comparison(SellingPrice = 8, startCap = 0, endCap = 3*10**3, years = 20, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1)
-        plt.savefig(f"elec_capVSrevenue_hydrogenPrice{i}.eps")
+    sellingPrice = [2, 2.25, 2.5, 2.75, 3, 3.25, 3.5]
+    for i in sellingPrice:
+        plots_obj.profit_PeakShaving_2d_comparison(SellingPrice = i, startCap = 0, endCap = 3*10**3, years = 20, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1)
+       # plt.savefig(f"elec_capVSrevenue_hydrogenPrice{i}.eps")
     #plots_obj.profit_PeakShaving_3d_comparison(startSellingPrice = 2, stopSellingPrice = 10, startCap = 0, endCap = 16, years = 5, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1)
     #############
