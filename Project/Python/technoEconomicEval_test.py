@@ -61,6 +61,6 @@ if __name__ == "__main__":
     # Comparison of peak shaving profit as a function of electrolyzer capacity.
     sellingPrice = [1.7, 2.5, 3, 4]
     #for i in sellingPrice:
-    #    plots_obj.profit_PeakShaving_2d_comparison(SellingPrice = i, startCap = 0, endCap = 3*10**3, years = 20, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1)
+        #plots_obj.profit_PeakShaving_2d_comparison(SellingPrice = i, startCap = 0, endCap = 3*10**3, years = 20, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1)
        # plt.savefig(f"elec_capVSrevenue_hydrogenPrice{i}.eps")
        #############
