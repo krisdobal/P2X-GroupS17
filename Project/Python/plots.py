@@ -237,7 +237,7 @@ class Plots:
         #plt.margins(x=0,y=0)
         plt.xlabel("Electrolyzer capacity [GW]")
         plt.ylabel("Revenue [MEUR]")
-        plt.legend(["Hydrogen driven", "Electricity driven", "Spot price driven"],fontsize=5)
+        plt.legend(["Hydrogen driven", "Electricity driven", "Spot price driven"],fontsize=8)
         plt.grid()
           
 
