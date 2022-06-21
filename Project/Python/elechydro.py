@@ -25,7 +25,7 @@ class ElecHydro:
         eta_HS = 0.0035 / 100;
         
         # The distance from the hub to the shore [km].
-        L_HS = 100
+        L_HS = 214
         
         # Sending energy [MJ].
         SendingEnergy = (SendingPower/dt) 
