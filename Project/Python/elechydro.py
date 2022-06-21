@@ -40,7 +40,7 @@ class ElecHydro:
         
         income_sum_E = 0
 
-        HHV = 33.3/1000 # MWh/kg
+        HHV = 39.38/1000 # MWh/kg 
         eta = .66 #[] electrolyser efficiency
         
         #Mode changes between 0: spotprice driven, 1= Electricity driven, 2= Hydrogen driven
