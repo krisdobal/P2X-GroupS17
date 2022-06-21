@@ -20,10 +20,9 @@ class ElecHydro:
         # Energy loss per km
         self.eta_HS = 0.0035 / 100
         # The distance from the hub to the shore [km].
-        self.L_HS = 100
+        self.L_HS = 214
 
     def technoEcoEval_CalculateDeliveredPower(self, SendingPower,dt):
-
         
         # Sending energy [MJ].
         SendingEnergy = (SendingPower/dt) 

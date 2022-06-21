@@ -194,23 +194,24 @@ class Plots:
         utilization_hours = [None]*len(Electro_Capacity)
         #full = [None]*len(Electro_Capacity) 
         #notfull = [None]*len(Electro_Capacity)
-        fig = plt.figure(figsize=(5 ,5) , dpi=100)
+        factor = 1000
+        fig = plt.figure(figsize=(10 ,10) , dpi=100)
         ax = plt.axes()
         
         for i,Capacity in enumerate(Electro_Capacity):
             Profit[i], utilization_hours[i] = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, SellingPrice, Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 0)
          
-        plt.plot(Electro_Capacity, np.multiply(Profit,  10**(-6.0)))
+        plt.plot(np.divide(Electro_Capacity,factor), np.multiply(np.divide(Profit,factor),  10**(-6.0)))
         
         for i,Capacity in enumerate(Electro_Capacity):
             Profit[i], utilization_hours[i] = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, SellingPrice, Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 1)
          
-        plt.plot(Electro_Capacity, np.multiply(Profit,  10**(-6.0)))     
+        plt.plot(np.divide(Electro_Capacity,factor), np.multiply(np.divide(Profit,factor),  10**(-6.0)))
         
         for i,Capacity in enumerate(Electro_Capacity):
             Profit[i], utilization_hours[i] = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, SellingPrice, Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 2)
          
-        plt.plot(Electro_Capacity, np.multiply(Profit,  10**(-6.0)))      
+        plt.plot(np.divide(Electro_Capacity,factor), np.multiply(np.divide(Profit,factor),  10**(-6.0)))    
         
         
         plt.legend(["Spot price driven", "Hydrogen driven", "Electricity driven"])
