@@ -17,8 +17,7 @@ if __name__ == "__main__":
     demand = getData.getDemand()
     price_dataset = getData.getPrice()
 
-    scaled_demand, scaled_power = getData.scalePowerAndDemand(
-        demand, power, 3*10**3)
+    scaled_demand, scaled_power = getData.scalePowerAndDemand(demand, power)
     #scaled_demand, scaled_power = getData.scalePowerAndDemand_old(demand, power)
     # print(scaled_demand*.8*12)
     # print(scaled_power*12)
