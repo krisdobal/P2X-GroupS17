@@ -6,15 +6,17 @@ Created on Mon Jun 20 09:54:11 2022
 """
 import matplotlib.pyplot as plt 
 from mpl_toolkits import mplot3d
+import matplotlib.ticker as plticker
 import numpy as np
 
 class Plots:
     
-    def __init__(self, ElecHydro_obj, time_interval, MinimumSpotPrice):
+    def __init__(self, ElecHydro_obj, time_interval, MinimumSpotPrice, granularity_3d, granularity_2d):
+        self.granularity_3d = granularity_3d
+        self.granularity_2d = granularity_2d
         self.ElecHydro_obj = ElecHydro_obj
         self.MinimumSpotPrice = MinimumSpotPrice
         self.time_interval = time_interval
-        pass
     
     def stepPlot(self):
         #%%
@@ -121,15 +123,79 @@ class Plots:
     # ax.set_title('3D contour')
     # plt.show()
     
-
  #%% Comparison of peak shaving profit as a function of electrolyzer capacity. 
     
-    def profit_PeakShaving_2d_comparison(self, SellingPrice = 8, startCap = 0, endCap = 16, years = 3, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1):
-        Electro_Capacity = list(range(startCap,endCap,1))
+    def profit_PeakShaving_3d_comparison(self, startSellingPrice = 2, stopSellingPrice = 10, startCap = 0, endCap = 16, years = 3, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1):
+        sellingPrice = (np.linspace(startSellingPrice, stopSellingPrice, self.granularity_3d))
+        Electro_Capacity = (np.linspace(startCap,endCap,self.granularity_3d))
         Profit = [None]*len(Electro_Capacity)
         utilization_hours = [None]*len(Electro_Capacity)
         #full = [None]*len(Electro_Capacity) 
         #notfull = [None]*len(Electro_Capacity)
+        
+        for i,Capacity in enumerate(Electro_Capacity):
+            Profit[i], utilization_hours[i] = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, sellingPrice[i], Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 0)
+        ''' 
+        plt.plot(Electro_Capacity, np.multiply(Profit,  10**(-6.0)))
+        
+        for i,Capacity in enumerate(Electro_Capacity):
+            Profit[i], utilization_hours[i] = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, SellingPrice, Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 1)
+         
+        plt.plot(Electro_Capacity, np.multiply(Profit,  10**(-6.0)))     
+        
+        for i,Capacity in enumerate(Electro_Capacity):
+            Profit[i], utilization_hours[i] = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, SellingPrice, Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 2)
+         
+        plt.plot(Electro_Capacity, np.multiply(Profit,  10**(-6.0)))      
+        '''       
+        
+        fig = plt.figure()
+
+        #ax = fig.add_subplot(111, projection='3d')
+        
+        #ax.plot(Electro_Capacity, np.multiply(Profit,  10**(-6.0)), sellingPrice)
+        
+        
+        
+        
+        ax = plt.axes(projection='3d')
+        mappable = plt.cm.ScalarMappable()
+        #mappable.set_array(Z)
+        #ax.plot_surface(HYDROGENPRICE, P_ELECHEJ,  np.multiply(Z, 10**(-6.0)), cmap=cm.hsv, linewidth=0, antialiased=False)
+        ax.plot_surface(Electro_Capacity, np.multiply(Profit,  10**(-6.0)), [sellingPrice,sellingPrice], cmap=mappable.cmap, linewidth=0, antialiased=False, norm=mappable.norm,)
+        #contourf
+        clb=plt.colorbar(mappable)
+        clb.ax.tick_params(labelsize=8) 
+         #clb.ax.set_title('Your Label',fontsize=8)
+        clb.set_label('Profit [Mil. EUR]')
+        fig.tight_layout()
+        
+        plt.margins(x=0 ,y=0)
+        #plt.colorbar(mappable)
+         #ax.contour3D(HYDROGENPRICE, P_ELECHEJ,  np.multiply(Z, 1/time_interval), 50)
+        ax.set_xlabel('Electrolyzer Capacity [MW]')
+        ax.set_ylabel('Profit [Mil. EUR]')
+        ax.set_zlabel('Hydrogen selling price [EUR/Kg')
+        ax.set_title('Hydro selling price %0.2f [EUR/kg] on peak shaving' %sellingPrice[0])
+        plt.show()
+        
+        #plt.show()
+        
+        #plt.legend(["Spot-price driven", "Hydrogen driven", "Electricity driven"])
+        #plt.xlabel("Electrolyzer capacity [MW]")
+        #plt.ylabel("[Mil. EUR]")
+      
+
+ #%% Comparison of peak shaving profit as a function of electrolyzer capacity. 
+    
+    def profit_PeakShaving_2d_comparison(self, SellingPrice = 8, startCap = 0, endCap = 16, years = 3, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1):
+        Electro_Capacity = list(np.linspace(startCap,endCap,self.granularity_2d))
+        Profit = [None]*len(Electro_Capacity)
+        utilization_hours = [None]*len(Electro_Capacity)
+        #full = [None]*len(Electro_Capacity) 
+        #notfull = [None]*len(Electro_Capacity)
+        fig = plt.figure(figsize=(5 ,5) , dpi=100)
+        ax = plt.axes()
         
         for i,Capacity in enumerate(Electro_Capacity):
             Profit[i], utilization_hours[i] = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, SellingPrice, Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 0)
@@ -147,18 +213,33 @@ class Plots:
         plt.plot(Electro_Capacity, np.multiply(Profit,  10**(-6.0)))      
         
         
-        plt.legend(["Spot-price driven", "Hydrogen driven", "Electricity driven"])
+        plt.legend(["Spot price driven", "Hydrogen driven", "Electricity driven"])
         plt.xlabel("Electrolyzer capacity [MW]")
-        plt.ylabel("[Mil. EUR]")
+        plt.ylabel("Revenue [MEUR]")
+        
+        '''
+        locs, labels = plt.yticks()
+        plt.yticks(np.linspace(min(locs), max(locs)+1, self.granularity_2d))
+        #plt.yticks(np.arange(min(locs), max(locs)+1, 1))
+        plt.ylim(min(locs), max(locs))
+        '''
+        
+        locx = plticker.MultipleLocator(base=endCap*0.1)
+        locy = plticker.MultipleLocator(base=np.max(np.multiply(Profit,  10**(-6.0)))*0.1)
+        ax.xaxis.set_major_locator(locx)
+        ax.yaxis.set_major_locator(locy)
+
+# Add the grid
+#ax.grid(which='major', axis='both', linestyle='-')
         plt.grid()
-        plt.title('Hydro selling price %0.2f [EUR/kg] on peak shaving' %SellingPrice)
+        #plt.title('Hydro selling price %0.2f [EUR/kg] on peak shaving' %SellingPrice)
         plt.show() 
         
         
  #%% Plot of peak shaving profit as a function of electrolyzer capacity.  
     
     def profit_PeakShaving_2d(self, SellingPrice = 8, startCap = 0, endCap = 16, years = 3, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1):
-        Electro_Capacity = list(range(startCap,endCap,1))
+        Electro_Capacity = list(np.linspace(startCap,endCap,self.granularity_2d))
         Profit = [None]*len(Electro_Capacity)
         utilization_hours = [None]*len(Electro_Capacity)
         #full = [None]*len(Electro_Capacity) 
@@ -172,28 +253,34 @@ class Plots:
          
         # plt.legend(["Hydro driven"])
         plt.xlabel("Electrolyzer capacity [MW]")
-        plt.ylabel("[Mil. EUR]")
+        plt.ylabel("[MEUR]")
+        
+        locs, labels = plt.yticks()
+        #plt.yticks(np.linspace(min(locs), max(locs)+1, self.granularity_2d))
+        plt.yticks(np.arange(min(locs), max(locs)+1, 1))
+        plt.ylim(min(locs), max(locs))
+        
         plt.grid()
-        plt.title('Hydro selling price %0.2f [EUR/kg] on peak shaving' %SellingPrice)
+        #plt.title('Hydrogen selling price %0.2f [EUR/kg] on peak shaving' %SellingPrice)
         plt.show()       
  #%%  Plot 3D plot of peak shving profit as a function of hydro selling price and Electrolyzer capacity.
     def profit_PeakShaving_3d(self, startPrice = 0, endPrice = 8,  startCap = 0, endCap = 15, years = 3, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1):
            
         #Z = [[None] * len(P_elechej) for i in range(0,len(P_elechej)) ]
-        HydrogenPrice = np.linspace(startPrice, endPrice, 10)
-        P_elechej=np.linspace(startCap, endCap, 10)
+        HydrogenPrice = np.linspace(startPrice, endPrice, self.granularity_3d)
+        P_elechej = np.linspace(startCap, endCap, self.granularity_3d)
         HYDROGENPRICE, P_ELECHEJ = np.meshgrid(HydrogenPrice, P_elechej)
               
            
         Z =  np.zeros([len(HydrogenPrice), len(P_elechej)])
-        Z2 =  np.zeros([len(HydrogenPrice), len(P_elechej)])
+        #Z2 =  np.zeros([len(HydrogenPrice), len(P_elechej)])
            
         
         for x, Hyrdro in enumerate(HydrogenPrice):
             for y, Pelec in enumerate(P_elechej):
                 income_sum_E, utilization_hours = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, Hyrdro, Pelec, years, capex, yearly_opex, Hourly_OPEX) ;
                 Z[y, x] = income_sum_E  * 10**(-6.0)
-                Z2[y, x] = utilization_hours  / self.time_interval * 100;
+                #Z2[y, x] = utilization_hours  / self.time_interval * 100;
         
 
         
@@ -208,18 +295,18 @@ class Plots:
         clb=plt.colorbar(mappable)
         clb.ax.tick_params(labelsize=8) 
          #clb.ax.set_title('Your Label',fontsize=8)
-        clb.set_label('Profit [Mil. EUR]')
+        clb.set_label('Revenue [MEUR]')
         fig.tight_layout()
         
         plt.margins(x=0 ,y=0)
         #plt.colorbar(mappable)
          #ax.contour3D(HYDROGENPRICE, P_ELECHEJ,  np.multiply(Z, 1/time_interval), 50)
-        ax.set_xlabel('Selling hydro price [EUR/kg]')
+        ax.set_xlabel('Hydrogen market price [EUR/kg]')
         ax.set_ylabel('Electrolyzer capacity [MW]')
          #ax.set_zlabel('')
-        ax.set_title('PEAK SHAVING')
+        #ax.set_title('Revenue vs Electrolyzer capacity vs ')
         plt.show()
-        
+        '''
         fig = plt.figure(2 ,figsize=(5 ,5) , dpi=100)
            
         ax = plt.axes(projection='3d')
@@ -242,11 +329,12 @@ class Plots:
          #ax.set_zlabel('')
         ax.set_title('PEAK SHAVING')
         plt.show()       
-    
+        '''
  #%% Plot of profit as a function of electrolyzer capacity.  
     
     def profit_elecCap(self, SellingPrice = 8, startCap = 0, endCap = 16, years = 3, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1):
-        Electro_Capacity = list(range(startCap,endCap,200))
+        #Electro_Capacity = list(range(startCap,endCap,1))
+        Electro_Capacity = list(np.linspace(startCap,endCap,self.granularity_2d))
         Profit = [None]*len(Electro_Capacity)
         utilization_hours = [None]*len(Electro_Capacity)
         full = [None]*len(Electro_Capacity) 
@@ -268,7 +356,7 @@ class Plots:
   #%% Plot of profit as a function of hydro selling price.  
          
     def profit_hydroPrice(self, Electro_Capacity = 0, startPrice = 4, endPrice = 13, years = 3, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1):
-        SellingPrice=list(range(startPrice,endPrice,1))
+        SellingPrice=list(np.linspace(startPrice,endPrice,self.granularity_2d))
         #Electro_Capacity is [MW]
         Profit = [None]*len(SellingPrice)
         utilization_hours = [None]*len(SellingPrice)
@@ -293,8 +381,8 @@ class Plots:
     def profit_hydroPrice_elecCap(self, startPrice = 0, endPrice = 8,  startCap = 0, endCap = 15, years = 3, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1):
            
         #Z = [[None] * len(P_elechej) for i in range(0,len(P_elechej)) ]
-        HydrogenPrice = np.linspace(startPrice, endPrice, 10)
-        P_elechej=np.linspace(startCap, endCap, 10)
+        HydrogenPrice = np.linspace(startPrice, endPrice, self.granularity_2d)
+        P_elechej=np.linspace(startCap, endCap, self.granularity_2d)
         HYDROGENPRICE, P_ELECHEJ = np.meshgrid(HydrogenPrice, P_elechej)
         
         
