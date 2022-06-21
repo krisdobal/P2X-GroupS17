@@ -13,25 +13,22 @@ class ElecHydro:
         self.dt = 1 # 1 hour interval
         self.scaleVal = scaleVal
         #self.LCOH = LCOH #[EUR/kg] https://www.fchobservatory.eu/observatory/technology-and-market/levelised-cost-of-hydrogen-green-hydrogen-costs
+        
+        self.eta_st = 1/100;
+        # The number of the substation
+        self.N_HVDC_st = 2;
+        # Energy loss per km
+        self.eta_HS = 0.0035 / 100
+        # The distance from the hub to the shore [km].
+        self.L_HS = 214
 
     def technoEcoEval_CalculateDeliveredPower(self, SendingPower,dt):
-        # The energy loss at the conversion station  
-        eta_st = 1/100;
-        
-        # The number of the substation
-        N_HVDC_st = 2;
-        
-        # Energy loss per km
-        eta_HS = 0.0035 / 100;
-        
-        # The distance from the hub to the shore [km].
-        L_HS = 214
         
         # Sending energy [MJ].
         SendingEnergy = (SendingPower/dt) 
         
         # loss energy [MJ].
-        Loss = SendingEnergy * (eta_st * N_HVDC_st + eta_HS * L_HS);
+        Loss = SendingEnergy * (self.eta_st * self.N_HVDC_st + self.eta_HS * self.L_HS);
         
         return (SendingEnergy - Loss)* dt
         
@@ -63,7 +60,8 @@ class ElecHydro:
 
         # Power threshold of peak shaving [MW].
         PeakPowerThreshold = self.scaleVal - P_elec_capacity;
-        
+        # spot price correction for comparison
+        spotcorrect = (1-(self.eta_st * self.N_HVDC_st + self.eta_HS * self.L_HS))
         
         # Run through the entiry year.
         for i in range(timeInterval):
@@ -71,7 +69,7 @@ class ElecHydro:
             
             # If spot price is larger than the energy price of hydrogen:
             # ELECTRICITY DRIVEN
-            if(self.price_dataset[i] >= PriceH2E):
+            if(self.price_dataset[i]*spotcorrect >= PriceH2E):
                # If the actual wind farm production is below the power threshold.
                 if (self.power_dataset[i] <= PeakPowerThreshold):
                     Electricity_cap = self.power_dataset[i]
