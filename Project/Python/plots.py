@@ -190,7 +190,9 @@ class Plots:
     
     def profit_PeakShaving_2d_comparison(self, SellingPrice = 8, startCap = 0, endCap = 16, years = 3, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1):
         Electro_Capacity = list(np.linspace(startCap,endCap,self.granularity_2d))
-        Profit = [None]*len(Electro_Capacity)
+        Profit0 = [None]*len(Electro_Capacity)
+        Profit1 = [None]*len(Electro_Capacity)
+        Profit2 = [None]*len(Electro_Capacity)
         utilization_hours = [None]*len(Electro_Capacity)
         #full = [None]*len(Electro_Capacity) 
         #notfull = [None]*len(Electro_Capacity)
@@ -198,34 +200,63 @@ class Plots:
         fig = plt.figure(figsize=(10 ,10) , dpi=100)
         ax = plt.axes()
         
+        maxVal = 15500/10**(-6.0)
+        minVal = 1000/10**(-6.0)   
 
         for i,Capacity in enumerate(Electro_Capacity):
-            Profit[i], utilization_hours[i] = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, SellingPrice, Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 1)
+            Profit0[i], utilization_hours[i] = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, SellingPrice, Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 1)
          
-        plt.plot(np.divide(Electro_Capacity,factor), np.multiply(np.divide(Profit,factor),  10**(-6.0)))
+#        #if(np.max(Profit0)>maxVal):
+#        maxVal = np.max(Profit0)
+#        #if(np.min(Profit0)<minVal):
+#        minVal = np.min(Profit0)
+#            
+        for i,Capacity in enumerate(Electro_Capacity):
+            Profit1[i], utilization_hours[i] = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, SellingPrice, Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 2)
+        
+#        if(np.max(Profit1)>maxVal):
+#            maxVal = np.max(Profit1)
+#        if(np.min(Profit1)<minVal):
+#            minVal = np.min(Profit1)
         
         for i,Capacity in enumerate(Electro_Capacity):
-            Profit[i], utilization_hours[i] = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, SellingPrice, Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 2)
-         
-        plt.plot(np.divide(Electro_Capacity,factor), np.multiply(np.divide(Profit,factor),  10**(-6.0)))  
+            Profit2[i], utilization_hours[i] = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, SellingPrice, Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 0)
         
-        for i,Capacity in enumerate(Electro_Capacity):
-            Profit[i], utilization_hours[i] = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, SellingPrice, Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 0)
-         
-        plt.plot(np.divide(Electro_Capacity,factor), np.multiply(np.divide(Profit,factor),  10**(-6.0)))
+#        if(np.max(Profit2)>maxVal):
+#            maxVal = np.max(Profit2)
+#        if(np.min(Profit2)<minVal):
+#            minVal = np.min(Profit2)
+            
         
+        
+        plt.plot(np.divide(Electro_Capacity,factor), np.multiply(Profit0,  10**(-6.0)))
+        
+#        plt.yticks(np.linspace(minVal*(1-0.05) * 10**(-6.0), maxVal*(1+0.05)*10**(-6.0), self.granularity_2d))
+#        plt.ylim(minVal*(1-0.05) * 10**(-6.0),  maxVal*(1+0.05)*10**(-6.0))
+
+        plt.yticks(np.linspace(minVal*(1-0.02) * 10**(-6.0), maxVal*(1+0.02)*10**(-6.0), self.granularity_2d))
+        plt.ylim(minVal*(1-0.02) * 10**(-6.0),  maxVal*(1+0.02)*10**(-6.0))        
+        
+        plt.plot(np.divide(Electro_Capacity,factor), np.multiply(Profit1,  10**(-6.0)))
+        
+        plt.yticks(np.linspace(minVal*(1-0.02) * 10**(-6.0), maxVal*(1+0.02)*10**(-6.0), self.granularity_2d))
+        plt.ylim(minVal*(1-0.02) * 10**(-6.0),  maxVal*(1+0.02)*10**(-6.0))        
+        
+        
+        
+        plt.plot(np.divide(Electro_Capacity,factor), np.multiply(Profit2,  10**(-6.0)))
+    
+        plt.yticks(np.linspace(minVal*(1-0.02) * 10**(-6.0), maxVal*(1+0.02)*10**(-6.0), self.granularity_2d))
+        plt.ylim(minVal*(1-0.02) * 10**(-6.0),  maxVal*(1+0.02)*10**(-6.0))        
         
         
         plt.legend(["Hydrogen driven", "Electricity driven", "Spot price driven"])
         plt.xlabel("Electrolyzer capacity [GW]")
         plt.ylabel("Revenue [MEUR]")
         
-        '''
-        locs, labels = plt.yticks()
-        plt.yticks(np.linspace(min(locs), max(locs)+1, self.granularity_2d))
-        #plt.yticks(np.arange(min(locs), max(locs)+1, 1))
-        plt.ylim(min(locs), max(locs))
-        '''
+        
+
+        
         
         #locx = plticker.MultipleLocator(base=endCap*0.1)
        # locy = plticker.MultipleLocator(base=np.max(np.multiply(Profit,  10**(-6.0)))*0.1)
