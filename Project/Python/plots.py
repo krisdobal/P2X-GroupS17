@@ -143,7 +143,7 @@ class Plots:
             LCOE_acrossPrice[j] = LCOE[1:]
             
         Electro_Capacity=np.divide(Electro_Capacity,factor)
-        fig = plt.figure(figsize=(5,5), dpi=160)
+        fig = plt.figure(figsize=(5,5), dpi=200)
         for LCOH_val in LCOH_acrossPrice:
             plt.plot(Electro_Capacity[1:], LCOH_val)
             
@@ -159,7 +159,7 @@ class Plots:
         plt.savefig(f"./plots/LCOE_and_LCOH_vs_elecCap_png/elec_capVSLCOH_SellingPrice.png")
         
         
-        fig = plt.figure(figsize=(5,5), dpi=160)
+        fig = plt.figure(figsize=(5,5), dpi=200)
         for LCOE_val in LCOE_acrossPrice:
             plt.plot(Electro_Capacity[1:], LCOE_val)
             
