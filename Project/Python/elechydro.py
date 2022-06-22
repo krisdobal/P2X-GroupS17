@@ -62,8 +62,11 @@ class ElecHydro:
         #HHV = 39.38/1000 # MWh/kg 
         #eta = .66 #[] electrolyser efficiency
         #E_in = H2Production * HHV / eta
-                
-        LCOX = (CAPEX_sys*CRF + OPEX_sys_total + LCOE_in * E_in) / XProduction
+        
+        if (XProduction != 0):
+            LCOX = (CAPEX_sys*CRF + OPEX_sys_total + LCOE_in * E_in) / XProduction
+        else: 
+            LCOX = 0
         return LCOX
     
     
