@@ -12,6 +12,7 @@ class ElecHydro:
         self.price_dataset = price_dataset
         self.dt = 1 # 1 hour interval
         self.scaleVal = scaleVal
+        self.ProjectLifeTime = 20
         #self.LCOH = LCOH #[EUR/kg] https://www.fchobservatory.eu/observatory/technology-and-market/levelised-cost-of-hydrogen-green-hydrogen-costs
         
         self.eta_st = 1/100;
@@ -55,7 +56,7 @@ class ElecHydro:
     
     
     # This function calculates the LCOX).
-    def technoEcoEval_Calculate_LCOX(CAPEX_sys, OPEX_sys_total, XProduction, E_in, LCOE_in, ProjectLifeTime, DiscountRate):
+    def technoEcoEval_Calculate_LCOX(self, CAPEX_sys, OPEX_sys_total, XProduction, E_in, LCOE_in, ProjectLifeTime, DiscountRate):
         CRF = DiscountRate * (1+DiscountRate)**ProjectLifeTime / ( (1+DiscountRate)**ProjectLifeTime -1)
         #E_in Should be calculated as followed for an electrolyzer
         #HHV = 39.38/1000 # MWh/kg 
@@ -181,9 +182,11 @@ class ElecHydro:
 #        print("")
         # Returns the profit of the given year, when the Capex have been spread across the operation years
         #return years*(income_sum_E - (OPEX_Yearly_elec+OPEX_Yearly_wind) - Hourly_OPEX_sum) - (CAPEX_elec+CAPEX_wind), utilization_electrolyzer_hours
-        LCOH = technoEcoEval_Calculate_LCOX(CAPEX_sys = CAPEX_elec, OPEX_sys_total = OPEX_Yearly_elec, XProduction = H2Production, E_in = P2XElectricity, LCOE_in = self.LCOE_wind, ProjectLifeTime = , DiscountRate = self.DiscountRate)
-        LCOE = technoEcoEval_Calculate_LCOX(CAPEX_sys = CAPEX_HVDC, OPEX_sys_total = OPEX_Yearly_HDCD, XProduction = ElectricityProduction, E_in = HVDCElectricity, LCOE_in = self.LCOE_wind, ProjectLifeTime = , DiscountRate = self.DiscountRate)
-        return self.technoEcoEval_Calculate_NPV(CAPEX_elec+CAPEX_wind, years, income_sum_E, OPEX_Yearly_elec+OPEX_Yearly_wind + Hourly_OPEX_sum, self.DiscountRate), utilization_electrolyzer_hours
+        LCOH = self.technoEcoEval_Calculate_LCOX(CAPEX_sys = CAPEX_elec, OPEX_sys_total = OPEX_Yearly_elec, XProduction = H2Production, E_in = P2XElectricity, LCOE_in = self.LCOE_wind, ProjectLifeTime = self.ProjectLifeTime, DiscountRate = self.DiscountRate)
+        LCOE = self.technoEcoEval_Calculate_LCOX(CAPEX_sys = CAPEX_HVDC, OPEX_sys_total = OPEX_Yearly_HDCD, XProduction = ElectricityProduction, E_in = HVDCElectricity, LCOE_in = self.LCOE_wind, ProjectLifeTime = self.ProjectLifeTime, DiscountRate = self.DiscountRate)
+        return self.technoEcoEval_Calculate_NPV(CAPEX_elec+CAPEX_wind, years, income_sum_E, OPEX_Yearly_elec+OPEX_Yearly_wind + Hourly_OPEX_sum, self.DiscountRate), utilization_electrolyzer_hours, LCOH, LCOE
+    
+    
     # This function 
     def technoEcoEval_SpotPriceDriven_capex_opex(self, timeInterval, HydrogenPrice, P_elec_capacity, years, capex, yearly_opex, Hourly_OPEX):
         #Hourly_OPEX [EUR/Hour per electrolyzer capacity]

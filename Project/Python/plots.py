@@ -123,6 +123,45 @@ class Plots:
     # ax.set_title('3D contour')
     # plt.show()
     
+    def LCOE_and_LCOH_vs_elecCap(self, SellingPrice = 8, startCap = 0, endCap = 16, years = 3, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1):
+        
+        Electro_Capacity = (np.linspace(startCap,endCap,self.granularity_2d))
+        factor = 1000
+        #Profit = [None]*len(Electro_Capacity)
+        LCOH = [None]*len(Electro_Capacity) 
+        LCOE = [None]*len(Electro_Capacity)
+        for i,Capacity in enumerate(Electro_Capacity):
+            _, _, LCOH[i], LCOE[i] = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, SellingPrice, Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 0)
+            
+            
+        fig = plt.figure(figsize=(5,5), dpi=200)
+        plt.plot(np.divide(Electro_Capacity,factor), LCOH)
+        fig.tight_layout()
+        plt.xlabel("Electrolyzer capacity [GW]")
+        plt.ylabel("[EUR/kg]")
+        plt.tick_params(labelsize=8)
+        #plt.margins(x=0,y=0)
+        plt.title(f"sellingPrice: {SellingPrice}")
+        plt.legend(["LCOH"],fontsize=8)
+        plt.grid()
+        plt.show()
+        
+        
+            
+        
+        fig = plt.figure(figsize=(5,5), dpi=200)
+        fig.tight_layout()
+        plt.plot(np.divide(Electro_Capacity,factor), LCOE)
+        plt.xlabel("Electrolyzer capacity [GW]")
+        plt.ylabel("[EUR/MWh]")
+        
+        plt.tick_params(labelsize=8)
+        #plt.margins(x=0,y=0)
+        plt.title(f"sellingPrice: {SellingPrice}")
+        plt.legend(["LCOE"],fontsize=8)
+        plt.grid()
+        plt.show()
+            
  #%% Comparison of peak shaving profit as a function of electrolyzer capacity. 
     
     def profit_PeakShaving_3d_comparison(self, startSellingPrice = 2, stopSellingPrice = 10, startCap = 0, endCap = 16, years = 3, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1):
@@ -134,7 +173,7 @@ class Plots:
         #notfull = [None]*len(Electro_Capacity)
         
         for i,Capacity in enumerate(Electro_Capacity):
-            Profit[i], utilization_hours[i] = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, sellingPrice[i], Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 0)
+            Profit[i], utilization_hours[i], _, _ = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, sellingPrice[i], Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 0)
         ''' 
         plt.plot(Electro_Capacity, np.multiply(Profit,  10**(-6.0)))
         
@@ -204,7 +243,7 @@ class Plots:
         minVal = 1000/10**(-6.0)   
 
         for i,Capacity in enumerate(Electro_Capacity):
-            Profit0[i], utilization_hours[i] = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, SellingPrice, Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 1)
+            Profit0[i], utilization_hours[i], _, _  = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, SellingPrice, Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 1)
          
 #        #if(np.max(Profit0)>maxVal):
 #        maxVal = np.max(Profit0)
@@ -212,7 +251,7 @@ class Plots:
 #        minVal = np.min(Profit0)
 #            
         for i,Capacity in enumerate(Electro_Capacity):
-            Profit1[i], utilization_hours[i] = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, SellingPrice, Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 2)
+            Profit1[i], utilization_hours[i], _, _ = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, SellingPrice, Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 2)
         
 #        if(np.max(Profit1)>maxVal):
 #            maxVal = np.max(Profit1)
@@ -220,7 +259,7 @@ class Plots:
 #            minVal = np.min(Profit1)
         
         for i,Capacity in enumerate(Electro_Capacity):
-            Profit2[i], utilization_hours[i] = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, SellingPrice, Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 0)
+            Profit2[i], utilization_hours[i], _, _ = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, SellingPrice, Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 0)
         
 #        if(np.max(Profit2)>maxVal):
 #            maxVal = np.max(Profit2)
@@ -293,7 +332,7 @@ class Plots:
         #notfull = [None]*len(Electro_Capacity)
         
         for i,Capacity in enumerate(Electro_Capacity):
-            Profit[i], utilization_hours[i] = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, SellingPrice, Capacity, years, capex, yearly_opex, Hourly_OPEX)
+            Profit[i], utilization_hours[i], _, _ = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, SellingPrice, Capacity, years, capex, yearly_opex, Hourly_OPEX)
          
          
         plt.plot(Electro_Capacity, np.multiply(Profit,  10**(-6.0)))
@@ -325,7 +364,7 @@ class Plots:
         
         for x, Hyrdro in enumerate(HydrogenPrice):
             for y, Pelec in enumerate(P_elechej):
-                income_sum_E, utilization_hours = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, Hyrdro, Pelec, years, capex, yearly_opex, Hourly_OPEX) ;
+                income_sum_E, utilization_hours, _, _ = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, Hyrdro, Pelec, years, capex, yearly_opex, Hourly_OPEX) ;
                 Z[y, x] = income_sum_E  * 10**(-6.0)
                 #Z2[y, x] = utilization_hours  / self.time_interval * 100;
         
