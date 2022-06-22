@@ -123,46 +123,57 @@ class Plots:
     # ax.set_title('3D contour')
     # plt.show()
     
-    def LCOH_vs_elecCap(self, SellingPrice = 8, startCap = 0, endCap = 16, years = 3, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1):
+    def LCOE_and_LCOH_vs_elecCap(self, SellingPrices = [], startCap = 0, endCap = 16, years = 3, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1):
         
         Electro_Capacity = (np.linspace(startCap,endCap,self.granularity_2d))
         factor = 1000
         #Profit = [None]*len(Electro_Capacity)
+        
+        LCOH_acrossPrice = [None]*len(SellingPrices)
+        LCOE_acrossPrice = [None]*len(SellingPrices)
         LCOH = [None]*len(Electro_Capacity) 
         LCOE = [None]*len(Electro_Capacity)
-        for i,Capacity in enumerate(Electro_Capacity):
-            _, _, LCOH[i], LCOE[i] = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, SellingPrice, Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 0)
         
+        
+        for j,SellingPrice in enumerate(SellingPrices):
+            for i,Capacity in enumerate(Electro_Capacity):
+                _, _, LCOH[i], LCOE[i] = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, SellingPrice, Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 0)
             
+            LCOH_acrossPrice[j] = LCOH[1:]
+            LCOE_acrossPrice[j] = LCOE[1:]
+            
+        Electro_Capacity=np.divide(Electro_Capacity,factor)
         fig = plt.figure(figsize=(5,5), dpi=160)
-        plt.plot(np.divide(Electro_Capacity,factor), LCOH)
+        for LCOH_val in LCOH_acrossPrice:
+            plt.plot(Electro_Capacity[1:], LCOH_val)
+            
         fig.tight_layout()
         plt.xlabel("Electrolyzer capacity [GW]")
         plt.ylabel("[EUR/kg]")
         plt.tick_params(labelsize=6)
         #plt.margins(x=0,y=0)
         #plt.title(f"sellingPrice: {SellingPrice}")
-        plt.legend([f"Selling price: "],fontsize=8)
+        plt.legend([f"Selling price: {SellingPrices[0]}",f"Selling price: {SellingPrices[1]}",f"Selling price: {SellingPrices[2]}",f"Selling price: {SellingPrices[3]}"],fontsize=8)
         plt.grid()
         plt.savefig(f"./plots/LCOE_and_LCOH_vs_elecCap/elec_capVSLCOH_SellingPrice{SellingPrice}.eps")
         
-            
-            
-                
-        '''
+        
+        
         fig = plt.figure(figsize=(5,5), dpi=160)
+        for LCOE_val in LCOE_acrossPrice:
+            plt.plot(Electro_Capacity[1:], LCOE_val)
+            
         fig.tight_layout()
-        plt.plot(np.divide(Electro_Capacity,factor), LCOE)
         plt.xlabel("Electrolyzer capacity [GW]")
         plt.ylabel("[EUR/MWh]")
-        
+        plt.ylim((40,100))
+        plt.xlim((0,2.9))
         plt.tick_params(labelsize=6)
         #plt.margins(x=0,y=0)
         #plt.title(f"sellingPrice: {SellingPrice}")
-        plt.legend(["LCOE"],fontsize=8)
+        plt.legend([f"Selling price: {SellingPrices[0]}",f"Selling price: {SellingPrices[1]}",f"Selling price: {SellingPrices[2]}",f"Selling price: {SellingPrices[3]}"],fontsize=8)
         plt.grid()
         plt.savefig(f"./plots/LCOE_and_LCOH_vs_elecCap/elec_capVSLCOE_SellingPrice{SellingPrice}.eps")
-        '''
             
         plt.show()
             
