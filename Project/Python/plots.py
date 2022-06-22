@@ -123,7 +123,7 @@ class Plots:
     # ax.set_title('3D contour')
     # plt.show()
     
-    def LCOE_and_LCOH_vs_elecCap(self, SellingPrice = 8, startCap = 0, endCap = 16, years = 3, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1):
+    def LCOH_vs_elecCap(self, SellingPrice = 8, startCap = 0, endCap = 16, years = 3, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1):
         
         Electro_Capacity = (np.linspace(startCap,endCap,self.granularity_2d))
         factor = 1000
@@ -132,7 +132,7 @@ class Plots:
         LCOE = [None]*len(Electro_Capacity)
         for i,Capacity in enumerate(Electro_Capacity):
             _, _, LCOH[i], LCOE[i] = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, SellingPrice, Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 0)
-            
+        
             
         fig = plt.figure(figsize=(5,5), dpi=160)
         plt.plot(np.divide(Electro_Capacity,factor), LCOH)
@@ -142,14 +142,14 @@ class Plots:
         plt.tick_params(labelsize=6)
         #plt.margins(x=0,y=0)
         #plt.title(f"sellingPrice: {SellingPrice}")
-        plt.legend(["LCOH"],fontsize=8)
+        plt.legend([f"Selling price: "],fontsize=8)
         plt.grid()
         plt.savefig(f"./plots/LCOE_and_LCOH_vs_elecCap/elec_capVSLCOH_SellingPrice{SellingPrice}.eps")
-        plt.show()
-        
         
             
-        
+            
+                
+        '''
         fig = plt.figure(figsize=(5,5), dpi=160)
         fig.tight_layout()
         plt.plot(np.divide(Electro_Capacity,factor), LCOE)
@@ -162,6 +162,8 @@ class Plots:
         plt.legend(["LCOE"],fontsize=8)
         plt.grid()
         plt.savefig(f"./plots/LCOE_and_LCOH_vs_elecCap/elec_capVSLCOE_SellingPrice{SellingPrice}.eps")
+        '''
+            
         plt.show()
             
  #%% Comparison of peak shaving profit as a function of electrolyzer capacity. 
@@ -207,6 +209,7 @@ class Plots:
         #contourf
         clb=plt.colorbar(mappable)
         clb.ax.tick_params(labelsize=8) 
+        clb.ax.orientation('vertical')
          #clb.ax.set_title('Your Label',fontsize=8)
         clb.set_label('Profit [Mil. EUR]')
         fig.tight_layout()
@@ -380,7 +383,7 @@ class Plots:
         #ax.plot_surface(HYDROGENPRICE, P_ELECHEJ,  np.multiply(Z, 10**(-6.0)), cmap=cm.hsv, linewidth=0, antialiased=False)
         ax.plot_surface(HYDROGENPRICE, np.divide(P_ELECHEJ,1000),  Z, cmap=mappable.cmap, linewidth=0, antialiased=False, norm=mappable.norm,)
         #contourf
-        clb=plt.colorbar(mappable)
+        clb=plt.colorbar(mappable, orientation='horizontal')
         clb.ax.tick_params(labelsize=8) 
          #clb.ax.set_title('Your Label',fontsize=8)
         clb.set_label('NPV revenue [MEUR]')
