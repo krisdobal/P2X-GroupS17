@@ -1,0 +1,2 @@
+This project simulates a power plant and a P2X facility in co-operation. Not only does it do this, it furthermore does it in a profit optimized way in order to investigate the feasibility of such cooperating plants. 
+To run our project, download and enter the repository and run the /project/python/technoEconomicEval.py file which serves as our main function. This will generate various plots whose parameters can easily be changed in the main function.
