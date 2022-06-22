@@ -155,8 +155,8 @@ class Plots:
         #plt.title(f"sellingPrice: {SellingPrice}")
         plt.legend([f"Selling price: {SellingPrices[0]}",f"Selling price: {SellingPrices[1]}",f"Selling price: {SellingPrices[2]}",f"Selling price: {SellingPrices[3]}"],fontsize=8)
         plt.grid()
-        plt.savefig(f"./plots/LCOE_and_LCOH_vs_elecCap/elec_capVSLCOH_SellingPrice{SellingPrice}.eps")
-        
+        plt.savefig(f"./plots/LCOE_and_LCOH_vs_elecCap/elec_capVSLCOH_SellingPrice.eps")
+        plt.savefig(f"./plots/LCOE_and_LCOH_vs_elecCap_png/elec_capVSLCOH_SellingPrice.png")
         
         
         fig = plt.figure(figsize=(5,5), dpi=160)
@@ -173,8 +173,8 @@ class Plots:
         #plt.title(f"sellingPrice: {SellingPrice}")
         plt.legend([f"Selling price: {SellingPrices[0]}",f"Selling price: {SellingPrices[1]}",f"Selling price: {SellingPrices[2]}",f"Selling price: {SellingPrices[3]}"],fontsize=8)
         plt.grid()
-        plt.savefig(f"./plots/LCOE_and_LCOH_vs_elecCap/elec_capVSLCOE_SellingPrice{SellingPrice}.eps")
-            
+        plt.savefig(f"./plots/LCOE_and_LCOH_vs_elecCap/elec_capVSLCOE_SellingPrice.eps")
+        plt.savefig(f"./plots/LCOE_and_LCOH_vs_elecCap_png/elec_capVSLCOE_SellingPrice.png")
         plt.show()
             
  #%% Comparison of peak shaving profit as a function of electrolyzer capacity. 
@@ -335,6 +335,7 @@ class Plots:
        
         #plt.title('Hydro selling price %0.2f [EUR/kg] on peak shaving' %SellingPrice)
         plt.savefig(f"./plots/profit_PeakShaving_2d_comparison/elec_capVSrevenue_hydrogenPrice{SellingPrice}.eps")
+        plt.savefig(f"./plots/profit_PeakShaving_2d_comparison_png/elec_capVSrevenue_hydrogenPrice{SellingPrice}.png")
         plt.show() 
         
         
@@ -410,6 +411,7 @@ class Plots:
         plt.tick_params(labelsize=8)
         plt.show()
         plt.savefig(f"./plots/profit_PeakShaving_3d/elec_capVSrevenueVShydrogenPrice_3d.eps")
+        plt.savefig(f"./plots/profit_PeakShaving_3d_png/elec_capVSrevenueVShydrogenPrice_3d.png")
         '''
         fig = plt.figure(2 ,figsize=(5 ,5) , dpi=100)
            
