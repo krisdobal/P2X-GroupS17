@@ -143,7 +143,7 @@ class Plots:
             LCOE_acrossPrice[j] = LCOE[1:]
             
         Electro_Capacity=np.divide(Electro_Capacity,factor)
-        fig = plt.figure(figsize=(5,5), dpi=200)
+        fig = plt.figure(figsize=(5,5), dpi=250)
         for LCOH_val in LCOH_acrossPrice:
             plt.plot(Electro_Capacity[1:], LCOH_val)
             
@@ -153,13 +153,13 @@ class Plots:
         plt.tick_params(labelsize=6)
         #plt.margins(x=0,y=0)
         #plt.title(f"sellingPrice: {SellingPrice}")
-        plt.legend([f"Selling price: {SellingPrices[0]}",f"Selling price: {SellingPrices[1]}",f"Selling price: {SellingPrices[2]}",f"Selling price: {SellingPrices[3]}"],fontsize=8)
+        plt.legend([f"Hydrogen energy price: {SellingPrices[0]}",f"Hydrogen energy price: {SellingPrices[1]}",f"Hydrogen energy price: {SellingPrices[2]}",f"Hydrogen energy price: {SellingPrices[3]}"],fontsize=8)
         plt.grid()
         plt.savefig(f"./plots/LCOE_and_LCOH_vs_elecCap/elec_capVSLCOH_SellingPrice.eps")
         plt.savefig(f"./plots/LCOE_and_LCOH_vs_elecCap_png/elec_capVSLCOH_SellingPrice.png")
         
         
-        fig = plt.figure(figsize=(5,5), dpi=200)
+        fig = plt.figure(figsize=(5,5), dpi=250)
         for LCOE_val in LCOE_acrossPrice:
             plt.plot(Electro_Capacity[1:], LCOE_val)
             
@@ -171,7 +171,7 @@ class Plots:
         plt.tick_params(labelsize=6)
         #plt.margins(x=0,y=0)
         #plt.title(f"sellingPrice: {SellingPrice}")
-        plt.legend([f"Selling price: {SellingPrices[0]}",f"Selling price: {SellingPrices[1]}",f"Selling price: {SellingPrices[2]}",f"Selling price: {SellingPrices[3]}"],fontsize=8)
+        plt.legend([f"Hydrogen energy price: {SellingPrices[0]}",f"Hydrogen energy price: {SellingPrices[1]}",f"Hydrogen energy price: {SellingPrices[2]}",f"Hydrogen energy price: {SellingPrices[3]}"],fontsize=8)
         plt.grid()
         plt.savefig(f"./plots/LCOE_and_LCOH_vs_elecCap/elec_capVSLCOE_SellingPrice.eps")
         plt.savefig(f"./plots/LCOE_and_LCOH_vs_elecCap_png/elec_capVSLCOE_SellingPrice.png")
@@ -185,8 +185,8 @@ class Plots:
         Profit = [None]*len(Electro_Capacity)
         utilization_hours = [None]*len(Electro_Capacity)
         #full = [None]*len(Electro_Capacity) 
-        #notfull = [None]*len(Electro_Capacity)
         
+        #notfull = [None]*len(Electro_Capacity)
         for i,Capacity in enumerate(Electro_Capacity):
             Profit[i], utilization_hours[i], _, _ = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, sellingPrice[i], Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 0)
         ''' 
