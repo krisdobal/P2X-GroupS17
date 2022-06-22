@@ -25,6 +25,8 @@ class ElecHydro:
         # Discount rate.
         self.DiscountRate = 0.05;
         
+        self.LCOE_wind = 61 #€/MWh
+        
     # This function calculates the delivered power onshore..   
     def technoEcoEval_CalculateDeliveredPower(self, SendingPower,dt):
         
@@ -50,6 +52,21 @@ class ElecHydro:
             
         return NPV
         
+    
+    
+    # This function calculates the LCOX).
+    def technoEcoEval_Calculate_LCOX(CAPEX_sys, OPEX_sys_total, XProduction, E_in, LCOE_in, ProjectLifeTime, DiscountRate):
+        CRF = DiscountRate * (1+DiscountRate)**ProjectLifeTime / ( (1+DiscountRate)**ProjectLifeTime -1)
+        #E_in Should be calculated as followed for an electrolyzer
+        #HHV = 39.38/1000 # MWh/kg 
+        #eta = .66 #[] electrolyser efficiency
+        #E_in = H2Production * HHV / eta
+                
+        LCOX = (CAPEX_sys*CRF + OPEX_sys_total + LCOE_in * E_in) / XProduction
+        return LCOX
+    
+    
+    
     # This function 
     def technoEcoEval_SpotPriceDriven_PeakShaving(self, timeInterval, HydrogenPrice, P_elec_capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 0):
         # TODO: account for negative prices at high winds 
@@ -75,6 +92,10 @@ class ElecHydro:
         Hourly_OPEX_sum = 0; #[EUR]
         Electrolyzer_cap = 0;
         Electricity_cap = 0;
+        H2Production = 0;
+        ElectricityProduction = 0;
+        HVDCElectricity = 0;
+        P2XElectricity = 0;
 
         # Power threshold of peak shaving [MW].
         PeakPowerThreshold = self.scaleVal - P_elec_capacity;
@@ -130,11 +151,14 @@ class ElecHydro:
                     
                         if(P_elec_capacity > 0):
                             Hourly_OPEX_sum += Hourly_OPEX * self.power_dataset[i] / P_elec_capacity;
-            
+            HVDCElectricity += Electricity_cap
             Electricity_cap = self.technoEcoEval_CalculateDeliveredPower(Electricity_cap, self.dt)
             income_sum_E += (Electricity_cap) * self.price_dataset[i]
             income_sum_E += self.hydrogen_production(Electrolyzer_cap, P_elec_capacity)*1000*HydrogenPrice
-                       #      
+            P2XElectricity += Electrolyzer_cap
+            H2Production += self.hydrogen_production(Electrolyzer_cap, P_elec_capacity)*1000
+            ElectricityProduction += Electricity_cap
+            #      
         ### Electrolyzer CAPEX+OPEX ###
         CAPEX_elec = (P_elec_capacity * capex * 1000);     
         OPEX_Yearly_elec = CAPEX_elec * yearly_opex
@@ -143,6 +167,11 @@ class ElecHydro:
         CAPEX_wind = (1311*1000*self.scaleVal) # ex1 
         OPEX_Yearly_wind = CAPEX_wind * 0.02
         
+        # 
+        CAPEX_SUB = 238*10**6*3
+        CAPEX_Cable = self.L_HS*238*10**3
+        CAPEX_HVDC = CAPEX_SUB + CAPEX_Cable 
+        OPEX_Yearly_HDCD = CAPEX_HVDC*.005
 
 #        print(P_elec_capacity)
 #        print(OPEX_Yearly)
@@ -152,6 +181,8 @@ class ElecHydro:
 #        print("")
         # Returns the profit of the given year, when the Capex have been spread across the operation years
         #return years*(income_sum_E - (OPEX_Yearly_elec+OPEX_Yearly_wind) - Hourly_OPEX_sum) - (CAPEX_elec+CAPEX_wind), utilization_electrolyzer_hours
+        LCOH = technoEcoEval_Calculate_LCOX(CAPEX_sys = CAPEX_elec, OPEX_sys_total = OPEX_Yearly_elec, XProduction = H2Production, E_in = P2XElectricity, LCOE_in = self.LCOE_wind, ProjectLifeTime = , DiscountRate = self.DiscountRate)
+        LCOE = technoEcoEval_Calculate_LCOX(CAPEX_sys = CAPEX_HVDC, OPEX_sys_total = OPEX_Yearly_HDCD, XProduction = ElectricityProduction, E_in = HVDCElectricity, LCOE_in = self.LCOE_wind, ProjectLifeTime = , DiscountRate = self.DiscountRate)
         return self.technoEcoEval_Calculate_NPV(CAPEX_elec+CAPEX_wind, years, income_sum_E, OPEX_Yearly_elec+OPEX_Yearly_wind + Hourly_OPEX_sum, self.DiscountRate), utilization_electrolyzer_hours
     # This function 
     def technoEcoEval_SpotPriceDriven_capex_opex(self, timeInterval, HydrogenPrice, P_elec_capacity, years, capex, yearly_opex, Hourly_OPEX):
