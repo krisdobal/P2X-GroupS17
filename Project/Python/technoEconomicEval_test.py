@@ -40,7 +40,7 @@ if __name__ == "__main__":
                                   price_dataset=price_dataset, scaleVal = scaleUpVal)
     
     ### Plots ###
-    plots_obj = plots.Plots(ElecHydro_obj=ElecHydro_obj, time_interval=time_interval, MinimumSpotPrice=MinimumSpotPrice, granularity_3d=30, granularity_2d=10)
+    plots_obj = plots.Plots(ElecHydro_obj=ElecHydro_obj, time_interval=time_interval, MinimumSpotPrice=MinimumSpotPrice, granularity_3d=30, granularity_2d=30)
      # Plot of profit as a function of hydro selling price.
     #plots_obj.profit_hydroPrice(Electro_Capacity = 0, startPrice = 4, endPrice = 13, years = 3, capex = 600, yearly_opex = 0.02, Hourly_OPEX = 1)
     # Plot of profit as a function of electrolyzer capacity.
@@ -61,7 +61,7 @@ if __name__ == "__main__":
     sellingPrice = [1.7, 2.5, 3, 4]
     #sellingPrice = [1.7]
     for i in sellingPrice:
-    #    plots_obj.profit_PeakShaving_2d_comparison(SellingPrice = i, startCap = 0, endCap = 3*10**3, years = 20, capex = 600, yearly_opex = 0.02, Hourly_OPEX = 1)
-        plots_obj.LCOE_and_LCOH_vs_elecCap(SellingPrice = i, startCap = 0, endCap = 3*10**3, years = 20, capex = 600, yearly_opex = 0.02, Hourly_OPEX = 1)   
+        plots_obj.profit_PeakShaving_2d_comparison(SellingPrice = i, startCap = 0, endCap = 3*10**3, years = 20, capex = 600, yearly_opex = 0.02, Hourly_OPEX = 1)
+        #plots_obj.LCOE_and_LCOH_vs_elecCap(SellingPrice = i, startCap = 0, endCap = 3*10**3, years = 20, capex = 600, yearly_opex = 0.02, Hourly_OPEX = 1)   
     # plt.savefig(f"elec_capVSrevenue_hydrogenPrice{i}.eps")
        #############
