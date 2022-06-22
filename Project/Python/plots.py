@@ -134,32 +134,34 @@ class Plots:
             _, _, LCOH[i], LCOE[i] = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, SellingPrice, Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 0)
             
             
-        fig = plt.figure(figsize=(5,5), dpi=200)
+        fig = plt.figure(figsize=(5,5), dpi=160)
         plt.plot(np.divide(Electro_Capacity,factor), LCOH)
         fig.tight_layout()
         plt.xlabel("Electrolyzer capacity [GW]")
         plt.ylabel("[EUR/kg]")
-        plt.tick_params(labelsize=8)
+        plt.tick_params(labelsize=6)
         #plt.margins(x=0,y=0)
-        plt.title(f"sellingPrice: {SellingPrice}")
+        #plt.title(f"sellingPrice: {SellingPrice}")
         plt.legend(["LCOH"],fontsize=8)
         plt.grid()
+        plt.savefig(f"./plots/LCOE_and_LCOH_vs_elecCap/elec_capVSLCOH_SellingPrice{SellingPrice}.eps")
         plt.show()
         
         
             
         
-        fig = plt.figure(figsize=(5,5), dpi=200)
+        fig = plt.figure(figsize=(5,5), dpi=160)
         fig.tight_layout()
         plt.plot(np.divide(Electro_Capacity,factor), LCOE)
         plt.xlabel("Electrolyzer capacity [GW]")
         plt.ylabel("[EUR/MWh]")
         
-        plt.tick_params(labelsize=8)
+        plt.tick_params(labelsize=6)
         #plt.margins(x=0,y=0)
-        plt.title(f"sellingPrice: {SellingPrice}")
+        #plt.title(f"sellingPrice: {SellingPrice}")
         plt.legend(["LCOE"],fontsize=8)
         plt.grid()
+        plt.savefig(f"./plots/LCOE_and_LCOH_vs_elecCap/elec_capVSLCOE_SellingPrice{SellingPrice}.eps")
         plt.show()
             
  #%% Comparison of peak shaving profit as a function of electrolyzer capacity. 
