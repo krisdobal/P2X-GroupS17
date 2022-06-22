@@ -21,7 +21,11 @@ class ElecHydro:
         self.eta_HS = 0.0035 / 100
         # The distance from the hub to the shore [km].
         self.L_HS = 214
-
+        
+        # Discount rate.
+        self.DiscountRate = 0.05;
+        
+    # This function calculates the delivered power onshore..   
     def technoEcoEval_CalculateDeliveredPower(self, SendingPower,dt):
         
         # Sending energy [MJ].
@@ -31,6 +35,20 @@ class ElecHydro:
         Loss = SendingEnergy * (self.eta_st * self.N_HVDC_st + self.eta_HS * self.L_HS);
         
         return (SendingEnergy - Loss)* dt
+    
+    # This function calculates the net present value (NPV).
+    def technoEcoEval_Calculate_NPV(self,Capex, ProjectLifeTime, YearlyIncome, YearlyExpenditures, DiscountRate):
+        
+        NPV = 0;
+        # Year one.
+        NPV += (-Capex / (1 + DiscountRate)**0)
+        
+        for n in range(1, ProjectLifeTime+1,1):
+            # Year n.
+            NPV += ((YearlyIncome - YearlyExpenditures) / (1 + DiscountRate)**n);
+            #print(n)
+            
+        return NPV
         
     # This function 
     def technoEcoEval_SpotPriceDriven_PeakShaving(self, timeInterval, HydrogenPrice, P_elec_capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 0):
@@ -60,7 +78,8 @@ class ElecHydro:
 
         # Power threshold of peak shaving [MW].
         PeakPowerThreshold = self.scaleVal - P_elec_capacity;
-        # spot price correction for comparison
+        
+        # Spot price correction for comparison
         spotcorrect = (1-(self.eta_st * self.N_HVDC_st + self.eta_HS * self.L_HS))
         
         # Run through the entiry year.
@@ -70,6 +89,7 @@ class ElecHydro:
             # If spot price is larger than the energy price of hydrogen:
             # ELECTRICITY DRIVEN
             if(self.price_dataset[i]*spotcorrect >= PriceH2E):
+                
                # If the actual wind farm production is below the power threshold.
                 if (self.power_dataset[i] <= PeakPowerThreshold):
                     Electricity_cap = self.power_dataset[i]
@@ -131,8 +151,8 @@ class ElecHydro:
 #        print(income_sum_E)
 #        print("")
         # Returns the profit of the given year, when the Capex have been spread across the operation years
-        return years*(income_sum_E - (OPEX_Yearly_elec+OPEX_Yearly_wind) - Hourly_OPEX_sum) - (CAPEX_elec+CAPEX_wind), utilization_electrolyzer_hours
-    
+        #return years*(income_sum_E - (OPEX_Yearly_elec+OPEX_Yearly_wind) - Hourly_OPEX_sum) - (CAPEX_elec+CAPEX_wind), utilization_electrolyzer_hours
+        return self.technoEcoEval_Calculate_NPV(CAPEX_elec+CAPEX_wind, years, income_sum_E, OPEX_Yearly_elec+OPEX_Yearly_wind + Hourly_OPEX_sum, self.DiscountRate), utilization_electrolyzer_hours
     # This function 
     def technoEcoEval_SpotPriceDriven_capex_opex(self, timeInterval, HydrogenPrice, P_elec_capacity, years, capex, yearly_opex, Hourly_OPEX):
         #Hourly_OPEX [EUR/Hour per electrolyzer capacity]
