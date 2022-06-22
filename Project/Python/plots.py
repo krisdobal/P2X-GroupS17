@@ -123,45 +123,58 @@ class Plots:
     # ax.set_title('3D contour')
     # plt.show()
     
-    def LCOE_and_LCOH_vs_elecCap(self, SellingPrice = 8, startCap = 0, endCap = 16, years = 3, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1):
+    def LCOE_and_LCOH_vs_elecCap(self, SellingPrices = [], startCap = 0, endCap = 16, years = 3, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1):
         
         Electro_Capacity = (np.linspace(startCap,endCap,self.granularity_2d))
         factor = 1000
         #Profit = [None]*len(Electro_Capacity)
+        
+        LCOH_acrossPrice = [None]*len(SellingPrices)
+        LCOE_acrossPrice = [None]*len(SellingPrices)
         LCOH = [None]*len(Electro_Capacity) 
         LCOE = [None]*len(Electro_Capacity)
-        for i,Capacity in enumerate(Electro_Capacity):
-            _, _, LCOH[i], LCOE[i] = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, SellingPrice, Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 0)
+        
+        
+        for j,SellingPrice in enumerate(SellingPrices):
+            for i,Capacity in enumerate(Electro_Capacity):
+                _, _, LCOH[i], LCOE[i] = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, SellingPrice, Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 0)
             
+            LCOH_acrossPrice[j] = LCOH[1:]
+            LCOE_acrossPrice[j] = LCOE[1:]
             
-        fig = plt.figure(figsize=(5,5), dpi=160)
-        plt.plot(np.divide(Electro_Capacity,factor), LCOH)
+        Electro_Capacity=np.divide(Electro_Capacity,factor)
+        fig = plt.figure(figsize=(5,5), dpi=250)
+        for LCOH_val in LCOH_acrossPrice:
+            plt.plot(Electro_Capacity[1:], LCOH_val)
+            
         fig.tight_layout()
         plt.xlabel("Electrolyzer capacity [GW]")
         plt.ylabel("[EUR/kg]")
         plt.tick_params(labelsize=6)
         #plt.margins(x=0,y=0)
         #plt.title(f"sellingPrice: {SellingPrice}")
-        plt.legend(["LCOH"],fontsize=8)
+        plt.legend([f"Hydrogen energy price: {SellingPrices[0]}",f"Hydrogen energy price: {SellingPrices[1]}",f"Hydrogen energy price: {SellingPrices[2]}",f"Hydrogen energy price: {SellingPrices[3]}"],fontsize=8)
         plt.grid()
-        plt.savefig(f"./plots/LCOE_and_LCOH_vs_elecCap/elec_capVSLCOH_SellingPrice{SellingPrice}.eps")
-        plt.show()
+        plt.savefig(f"./plots/LCOE_and_LCOH_vs_elecCap/elec_capVSLCOH_SellingPrice.eps")
+        plt.savefig(f"./plots/LCOE_and_LCOH_vs_elecCap_png/elec_capVSLCOH_SellingPrice.png")
         
         
+        fig = plt.figure(figsize=(5,5), dpi=250)
+        for LCOE_val in LCOE_acrossPrice:
+            plt.plot(Electro_Capacity[1:], LCOE_val)
             
-        
-        fig = plt.figure(figsize=(5,5), dpi=160)
         fig.tight_layout()
-        plt.plot(np.divide(Electro_Capacity,factor), LCOE)
         plt.xlabel("Electrolyzer capacity [GW]")
         plt.ylabel("[EUR/MWh]")
-        
+        plt.ylim((40,100))
+        plt.xlim((0,2.9))
         plt.tick_params(labelsize=6)
         #plt.margins(x=0,y=0)
         #plt.title(f"sellingPrice: {SellingPrice}")
-        plt.legend(["LCOE"],fontsize=8)
+        plt.legend([f"Hydrogen energy price: {SellingPrices[0]}",f"Hydrogen energy price: {SellingPrices[1]}",f"Hydrogen energy price: {SellingPrices[2]}",f"Hydrogen energy price: {SellingPrices[3]}"],fontsize=8)
         plt.grid()
-        plt.savefig(f"./plots/LCOE_and_LCOH_vs_elecCap/elec_capVSLCOE_SellingPrice{SellingPrice}.eps")
+        plt.savefig(f"./plots/LCOE_and_LCOH_vs_elecCap/elec_capVSLCOE_SellingPrice.eps")
+        plt.savefig(f"./plots/LCOE_and_LCOH_vs_elecCap_png/elec_capVSLCOE_SellingPrice.png")
         plt.show()
             
  #%% Comparison of peak shaving profit as a function of electrolyzer capacity. 
@@ -172,8 +185,8 @@ class Plots:
         Profit = [None]*len(Electro_Capacity)
         utilization_hours = [None]*len(Electro_Capacity)
         #full = [None]*len(Electro_Capacity) 
-        #notfull = [None]*len(Electro_Capacity)
         
+        #notfull = [None]*len(Electro_Capacity)
         for i,Capacity in enumerate(Electro_Capacity):
             Profit[i], utilization_hours[i], _, _ = self.ElecHydro_obj.technoEcoEval_SpotPriceDriven_PeakShaving(self.time_interval, sellingPrice[i], Capacity, years, capex, yearly_opex, Hourly_OPEX, Mode = 0)
         ''' 
@@ -207,6 +220,7 @@ class Plots:
         #contourf
         clb=plt.colorbar(mappable)
         clb.ax.tick_params(labelsize=8) 
+        clb.ax.orientation('vertical')
          #clb.ax.set_title('Your Label',fontsize=8)
         clb.set_label('Profit [Mil. EUR]')
         fig.tight_layout()
@@ -321,6 +335,7 @@ class Plots:
        
         #plt.title('Hydro selling price %0.2f [EUR/kg] on peak shaving' %SellingPrice)
         plt.savefig(f"./plots/profit_PeakShaving_2d_comparison/elec_capVSrevenue_hydrogenPrice{SellingPrice}.eps")
+        plt.savefig(f"./plots/profit_PeakShaving_2d_comparison_png/elec_capVSrevenue_hydrogenPrice{SellingPrice}.png")
         plt.show() 
         
         
@@ -380,7 +395,7 @@ class Plots:
         #ax.plot_surface(HYDROGENPRICE, P_ELECHEJ,  np.multiply(Z, 10**(-6.0)), cmap=cm.hsv, linewidth=0, antialiased=False)
         ax.plot_surface(HYDROGENPRICE, np.divide(P_ELECHEJ,1000),  Z, cmap=mappable.cmap, linewidth=0, antialiased=False, norm=mappable.norm,)
         #contourf
-        clb=plt.colorbar(mappable)
+        clb=plt.colorbar(mappable, orientation='horizontal')
         clb.ax.tick_params(labelsize=8) 
          #clb.ax.set_title('Your Label',fontsize=8)
         clb.set_label('NPV revenue [MEUR]')
@@ -396,6 +411,7 @@ class Plots:
         plt.tick_params(labelsize=8)
         plt.show()
         plt.savefig(f"./plots/profit_PeakShaving_3d/elec_capVSrevenueVShydrogenPrice_3d.eps")
+        plt.savefig(f"./plots/profit_PeakShaving_3d_png/elec_capVSrevenueVShydrogenPrice_3d.png")
         '''
         fig = plt.figure(2 ,figsize=(5 ,5) , dpi=100)
            
