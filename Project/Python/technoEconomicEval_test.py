@@ -40,7 +40,7 @@ if __name__ == "__main__":
                                   price_dataset=price_dataset, scaleVal = scaleUpVal)
     
     ### Plots ###
-    plots_obj = plots.Plots(ElecHydro_obj=ElecHydro_obj, time_interval=time_interval, MinimumSpotPrice=MinimumSpotPrice, granularity_3d=30, granularity_2d=10)
+    plots_obj = plots.Plots(ElecHydro_obj=ElecHydro_obj, time_interval=time_interval, MinimumSpotPrice=MinimumSpotPrice, granularity_3d=30, granularity_2d=13)
 
     # Plot of profit as a function of hydro selling price.
     #plots_obj.profit_hydroPrice(Electro_Capacity = 0, startPrice = 4, endPrice = 13, years = 3, capex = 1000, yearly_opex = 0.02, Hourly_OPEX = 1)

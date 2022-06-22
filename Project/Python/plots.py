@@ -236,7 +236,7 @@ class Plots:
         plt.tick_params(labelsize=8)
         #plt.margins(x=0,y=0)
         plt.xlabel("Electrolyzer capacity [GW]")
-        plt.ylabel("Revenue [MEUR]")
+        plt.ylabel("NPV revenue [MEUR]")
         plt.legend(["Hydrogen driven", "Electricity driven", "Spot price driven"],fontsize=8)
         plt.grid()
           
@@ -342,7 +342,7 @@ class Plots:
         clb=plt.colorbar(mappable)
         clb.ax.tick_params(labelsize=8) 
          #clb.ax.set_title('Your Label',fontsize=8)
-        clb.set_label('Revenue [MEUR]')
+        clb.set_label('NPV revenue [MEUR]')
         fig.tight_layout()
         
         plt.margins(x=0 ,y=0)
